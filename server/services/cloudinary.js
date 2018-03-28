@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary')
-const configParams = require('../config').cloudinary
+const configParams = require('../../config').cloudinary
 
 if (process.env.NODE_ENV === 'developement') {
   const { cloud_name, api_key, api_secret } = configParams

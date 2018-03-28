@@ -5,25 +5,25 @@
       <template v-if="!editing">
         <header class="card-header">
           <p class="card-header-title">
-            <span><strong>{{ request.user_name }}</strong> <span style="font-weight: normal">requests</span> <strong>{{ request.item }}</strong></span>
+            <span><strong>{{ user.name }}</strong> <span style="font-weight: normal">requests</span> <strong>{{ item }}</strong></span>
           </p>
         </header>
       </template>
       <div class="card-content">
         <template v-if="editing">
           <request-form
-            :initialItem="request.item"
-            :initialDescription="request.description"
+            :initialItem="item"
+            :initialDescription="description"
             editing
-            :editRequestId="request.id"
+            :editRequestId="id"
             @submit="handleEdit"
           />
         </template>
         <template v-else>
           <div class="content">
-            <time>{{ formatDate(request.date) }}</time>
+            <time>{{ formatDate(date) }}</time>
             <br />
-            {{ request.description }}
+            {{ description }}
           </div>
         </template>
       </div>
@@ -48,7 +48,7 @@
 <script>
 import moment from 'moment'
 import RequestForm from './RequestForm'
-import * as Api from '@/services/api'
+import axios from 'axios'
 
 export default {
   name: 'request-page',
@@ -57,34 +57,49 @@ export default {
   },
   data: function () {
     return {
-      editing: false
-      // request: null
+      id: null,
+      item: null,
+      description: null,
+      user: {},
+      editing: false,
+      date: null
     }
   },
-  props: ['bloop', 'test'],
   computed: {
     request: function () {
       return this.$store.state.request
     },
     isMine: function () {
-      return Number(this.$store.state.id) === Number(this.request.user_id)
+      return Number(window.localStorage.getItem('community-credit-id')) === Number(this.user.id)
     }
-  },
-  beforeRouteUpdate: async function (to, from, next) {
-    if (to.path !== from.path) {
-      await this.$store.dispatch('getRequest', to.params.id)
-    }
-    next()
   },
   mounted: async function () {
-    this.request = await Api.getRequest(this.$route.params.id)
+    try {
+      await this.getRequest()
+    } catch (err) {
+      this.$router.push({ name: '404' })
+    }
   },
   methods: {
+    getRequest: async function () {
+      const response = await axios.get(`/api/requests/${this.$route.params.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+        }
+      })
+      this.id = response.data.id
+      this.item = response.data.item
+      this.description = response.data.description
+      this.user = response.data.user
+      this.date = response.data.updated_at
+      this.editing = false
+    },
     formatDate: function (date) {
       return moment(Date.parse(date)).format('MMM Do YY')
     },
     handleEdit: async function () {
-      this.$store.dispatch('getRequest', this.request.id)
+      await this.getRequest()
       this.editing = false
     },
     handleDelete: function () {
@@ -97,11 +112,16 @@ export default {
       this.$router.push({ name: 'Items', query: { list: true, request: this.request.id } })
     },
     delete: async function () {
-      await this.$store.dispatch('deleteRequest', this.$route.params.id)
-      if (!this.request) {
+      try {
+        await axios.delete(`/api/requests/${this.$route.params.id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          }
+        })
         this.$toast.open('Request deleted')
         this.$router.push({ name: 'Requests' })
-      } else {
+      } catch (err) {
         this.toast.open('Unabled to delete your request')
       }
     }

@@ -1,7 +1,6 @@
 <template>
 <div class="request">
   <router-link :to="`/requests/${id}`" class="request-link">
-    {{ new Date(date).toLocaleDateString() }}
     {{ formatDate(date) }}
     <br />
     <strong>{{ name }}</strong> requests <strong>{{ item }}</strong>

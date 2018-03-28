@@ -4,13 +4,13 @@ const Model = require('./model')
 
 const schema = joi.object().keys({
   id: joi.number().optional(),
-  first_name: joi.string().alphanum().required(),
-  last_name: joi.string().alphanum().required(),
+  name: joi.string().required(),
   password: joi.string().allow(null).allow('').optional(),
-  slack_metadata: joi.string().allow(null).allow('').optional(),
-  authServiceType: joi.string().allow(null).allow('').optional(),
-  email: joi.string().email(),
-  phone: joi.string().allow(null).allow('').optional(),
+  email: joi.string().email().optional().allow(null).allow(''),
+  auth_method: joi.string(),
+  slack_user_id: joi.string().optional(),
+  slack_team_id: joi.string().optional(),
+  slack_access_token: joi.string().optional(),
   created_at: joi.any(),
   updated_at: joi.any()
 })
@@ -21,16 +21,32 @@ const schema = joi.object().keys({
 class User extends Model {
   /**
    * Find a single user by email
-   * @param {*} email email of the user
-   * @returns {User}
+   * @param {String} email email of the user
+   * @returns {User}  User database object
    */
   static async findByEmail (email) {
-    const result = await knex('users').where({ email }).limit(1)
-    if (!result || result.length === 0) {
+    const results = await knex.raw(`
+      SELECT * FROM users WHERE email = '${email}'
+    `)
+    if (!results.rows[0]) {
       return null
-    } else {
-      return new User(result[0])
     }
+    return new User(results.rows[0])
+  }
+
+  /**
+   * Find a single user by slack user id and team id
+   * @param {String} userId Slack user id
+   * @param {String} teamId Slack team id
+   */
+  static async findBySlackUserIdTeamId (userId, teamId) {
+    const results = await knex.raw(`
+      SELECT * FROM users WHERE slack_user_id = '${userId}' AND slack_team_id = '${teamId}'
+    `)
+    if (!results.rows[0]) {
+      return null
+    }
+    return new User(results.rows[0])
   }
 }
 

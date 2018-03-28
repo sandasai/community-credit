@@ -3,8 +3,8 @@
   <request v-for="request in requests"
     :key="request.id"
     :id="request.id"
-    :date="request.date"
-    :name="request.user_name"
+    :date="request.updated_at"
+    :name="request.user.name"
     :item="request.item"
     :description="request.description"
   />

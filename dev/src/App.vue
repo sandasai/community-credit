@@ -56,6 +56,7 @@
 <script>
 import * as Auth from './services/auth'
 import store from './services/store'
+import axios from 'axios'
 
 export default {
   name: 'app',
@@ -69,7 +70,7 @@ export default {
   store,
   computed: {
     isAuthorized () {
-      return this.$store.state.token
+      return window.localStorage.getItem('community-credit-token')
     }
   },
   methods: {
@@ -80,9 +81,22 @@ export default {
           this.$router.push('/')
         })
     },
-    handleLogOut: function (e) {
-      e.preventDefault()
-      Auth.logout()
+    handleLogOut: async function (e) {
+      console.log('logging out!')
+      try {
+        await axios({
+          method: 'POST',
+          url: '/auth/logout',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          }
+        })
+        window.localStorage.removeItem('community-credit-token')
+        window.localStorage.removeItem('community-credit-id')
+      } catch (err) {
+        console.log(err)
+      }
       this.$router.push('/')
     },
     toggleBurger: function () {

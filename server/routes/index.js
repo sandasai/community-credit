@@ -8,6 +8,7 @@ const Models = require('../models')
 
 router.use('/auth', authRoutes)
 
+/*
 // Authentication middleware
 router.use('/api', bearerToken())
 router.use('/api', async (req, res, next) => {
@@ -22,6 +23,8 @@ router.use('/api', async (req, res, next) => {
     })
   }
 })
+
+*/
 router.use('/api', apiRoutes)
 
 module.exports = router

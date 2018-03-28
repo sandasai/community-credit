@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'request-form',
   data: function () {
@@ -78,9 +80,18 @@ export default {
       }
       if (this.editing) {
         try {
-          await this.$store.dispatch('putRequest',
-            { id: this.editRequestId, item: this.item, description: this.description }
-          )
+          await axios({
+            method: 'PUT',
+            url: `/api/requests/${this.editRequestId}`,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+            },
+            data: {
+              item: this.item,
+              description: this.description
+            }
+          })
           this.$toast.open({
             message: 'Request changed!',
             type: 'is-success'
@@ -90,18 +101,29 @@ export default {
         }
       } else {
         try {
-          await this.$store.dispatch('postRequest', { item: this.item, description: this.description })
+          await axios({
+            method: 'POST',
+            url: `/api/requests`,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+            },
+            data: {
+              item: this.item,
+              description: this.description
+            }
+          })
           this.item = ''
           this.description = ''
           this.$toast.open({
             message: 'Request created!',
             type: 'is-success'
           })
-          this.itemFieldTouched = false
         } catch (err) {
           this.errors = err.response
         }
       }
+      this.$emit('submit')
     }
   }
 }

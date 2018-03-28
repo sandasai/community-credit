@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const jwtsecret = require('../config').jwt.secret
+const jwtsecret = require('../../config.json').jwt.secret
 
 /**
  * Signs a JSON web token using an email

@@ -1,4 +1,4 @@
-const slack = require('../config').slack
+const slack = require('../../config').slack
 const axios = require('axios')
 
 /**
