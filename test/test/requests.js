@@ -68,7 +68,7 @@ describe('requests', function () {
       }
     })
 
-    it('should edit an existing item', async function () {
+    it('should edit an existing request', async function () {
       const newItem = faker.commerce.productName()
       const newDescription = faker.company.bsNoun()
       let response = await axios.put(`/requests/${requestId}`, {
