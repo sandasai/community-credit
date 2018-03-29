@@ -1,25 +1,25 @@
 <template>
   <div class="card">
     <div class="card-image">
-      <img 
+      <img
         v-if="item.images"
-        v-bind:src="item.images[0].url" 
+        v-bind:src="item.images[0].url"
         v-bind:class="{ 'small-card-image' : size == 'small', 'large-card-image' : size == 'large'}"
         alt=""
       >
-    </div>  
+    </div>
     <div class="card-content">
       <p class="title is-6">
         {{ item.name }}
       </p>
       <p class="subtitle is-6">
-        <small>Owner: <strong>{{ this.item.owner_name }}</strong></small>
+        <small>Owner: <strong>{{ this.item.owner.name }}</strong></small>
         <template v-if="item.holder_id !== item.owner_id">
           <br>
-          <small>Held By: <strong>{{ this.item.holder_name }}</strong></small>
+          <small>Held By: <strong>{{ this.item.holder.name }}</strong></small>
         </template>
         <br>
-        <small>Updated {{ relativeDate }}</small>
+        <small>{{ relativeDate }}</small>
       </p>
     </div>
   </div>
@@ -36,7 +36,7 @@ export default {
   ],
   computed: {
     relativeDate: function () {
-      return moment(this.item.date).fromNow()
+      return moment(this.item.updated_at).fromNow()
     }
   },
   mounted: function () {

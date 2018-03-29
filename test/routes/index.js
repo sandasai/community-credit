@@ -123,5 +123,6 @@ router.post('/auth/logout', ...checkLoggedIn, async (req, res) => {
 router.use('/api', ...checkLoggedIn)
 router.use('/api', require('./requests'))
 router.use('/api', require('./items'))
+router.use('/api', require('./users'))
 
 module.exports = router

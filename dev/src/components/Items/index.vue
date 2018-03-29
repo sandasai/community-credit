@@ -33,7 +33,7 @@
 
           <p class="is-size-5">Owned by: <a>{{ item.user_name }}</a></p>
           <p class="is-size-5">Held by: <a>{{ item.holder_name }}</a></p>
-          <p class="is-size-5">Status: 
+          <p class="is-size-5">Status:
             <span v-if="item.holder_id !== $store.state.id || item.owner_id !== $store.state.id">{{ item.status }}</span>
             <b-dropdown v-else hoverable @change="changeStatus">
               <a slot="trigger">
@@ -41,7 +41,7 @@
               </a>
               <b-dropdown-item value="Available">
                 Available
-              </b-dropdown-item>     
+              </b-dropdown-item>
               <b-dropdown-item value="Unavailable">
                 Unavailable
               </b-dropdown-item>
@@ -89,11 +89,11 @@
               Add a photo
             </a>
           </div>
-          
+
           <br>
 
           <template v-if="!editing">
-            <div class="content">{{ this.item.description }}</div>            
+            <div class="content">{{ this.item.description }}</div>
           </template>
           <template v-else>
             <b-field>
@@ -110,7 +110,7 @@
     :entries="item.entries"
     :item="item"
     :itemId="item.id"
-    :requested="item.requested" 
+    :requested="item.requested"
     @update="$store.dispatch('getItem', item.id)"/>
 
   <section class="section">

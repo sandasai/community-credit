@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-
     <b-field>
       <b-input placeholder="Search..."
         type="search"
@@ -13,7 +12,7 @@
         <option>Recently Available</option>
       </b-select>
       <p class="control">
-        <button class="button is-primary" @click="$store.dispatch('getItems', search)">Search</button>
+        <button class="button is-primary" @click="searchFilter">Search</button>
       </p>
     </b-field>
 
@@ -35,7 +34,7 @@
     </b-field>
 
     <div class="item-list">
-      <item-card 
+      <item-card
         v-for="(item, index) in whichItems"
         v-bind:key="item.id"
         v-bind:item="item"
@@ -46,6 +45,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import ItemCard from './ItemCard'
 
 function sortItemsAlphabetically (a, b) {
@@ -57,7 +57,7 @@ function sortItemsAlphabetically (a, b) {
 }
 
 function sortItemsRecentlyAvailable (a, b) {
-  if (a.date > b.date) {
+  if (a.updated_at > b.updated_at) {
     return -1
   } else {
     return 1
@@ -65,26 +65,30 @@ function sortItemsRecentlyAvailable (a, b) {
 }
 
 export default {
+  components: {
+    ItemCard
+  },
   data: function () {
     return {
       search: '',
       selectedItem: null,
       filter: 'All',
-      sortBy: 'Recently Available'
+      sortBy: 'Recently Available',
+      items: []
     }
   },
   computed: {
-    items: function () {
-      return this.$store.state.items
+    myId: function () {
+      return Number(window.localStorage.getItem('community-credit-id'))
     },
     myItems: function () {
       return this.items.filter(item => {
-        return item.owner_id === this.$store.state.id
+        return Number(item.owner_id) === this.myId
       })
     },
     borrowedItems: function () {
       return this.items.filter(item => {
-        return item.holder_id === this.$store.state.id && item.owner_id !== this.$store.state.id
+        return item.holder_id === this.myId && item.owner_id !== this.myId
       })
     },
     whichItems: function () {
@@ -103,14 +107,30 @@ export default {
       })
     }
   },
-  components: {
-    ItemCard
-  },
-  beforeRouteUpdate (from, to, next) {
-    this.$store.dispatch('getItems')
-    next()
+  mounted: async function () {
+    this.items = await this.getItems()
   },
   methods: {
+    getItems: async function () {
+      const response = await axios({
+        method: 'GET',
+        url: '/api/items',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+        }
+      })
+      return response.data
+    },
+    searchFilter: async function (text) {
+      if (text.length === 0) {
+        this.items = await this.getItems()
+      } else {
+        this.items = this.items.filter(item => {
+          return true // TODO: for now
+        })
+      }
+    },
     handleCardClick: function (index) {
       this.selectedItem = index
       this.$router.push({ name: 'ItemPage', params: { id: this.items[index].id } })

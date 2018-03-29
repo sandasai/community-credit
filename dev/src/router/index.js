@@ -76,26 +76,13 @@ const router = new Router({
       path: '/items',
       name: 'Items',
       component: Items,
-      meta: { requiresAuth: true },
-      beforeEnter: async (to, from, next) => {
-        await store.dispatch('getItems')
-        next()
-      }
+      meta: { requiresAuth: true }
     },
     {
       path: '/items/:id',
       name: 'ItemPage',
       component: ItemPage,
-      meta: { requiresAuth: true },
-      beforeEnter: async (to, from, next) => {
-        await store.dispatch('getItem', to.params.id)
-        if (!store.state.item) {
-          next({
-            path: '/404'
-          })
-        }
-        next()
-      }
+      meta: { requiresAuth: true }
     },
     {
       path: '/profile',

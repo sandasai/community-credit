@@ -19,7 +19,7 @@
           <b-field label="Description">
             <b-input v-model="description" placeholder="Description" type="textarea"></b-input>
           </b-field>
-          
+
           <label class="label">Who is this for?</label>
           <div class="field"
             v-bind:class="{ 'has-addons': displayUser }"
@@ -53,15 +53,14 @@
           </div>
 
         </div>
-        
+
         <div class="column is-one-third has-text-centered">
-          <file-upload 
+          <file-upload
             v-model="files"
             prompt="Drop your photos here or click to upload!"
             accept="image/*"
           />
         </div>
-
       </div>
 
       <button class="button is-primary">List item!</button>
@@ -72,7 +71,7 @@
 <script>
 import FileUpload from '@/components/common/FileUpload'
 import SearchAutocomplete from '@/components/common/SearchAutocomplete'
-import * as Api from '@/services/api'
+import axios from 'axios'
 
 export default {
   name: 'item-form',
@@ -115,13 +114,21 @@ export default {
     }
   },
   mounted: async function () {
+    const requestId = this.$route.query.request
     if (this.$route.query.list && this.$route.query.request) {
-      const request = await Api.getRequest(this.$route.query.request)
-      this.request = request.id
-      this.item = request.item
+      const response = await axios({
+        method: 'GET',
+        url: `/api/requests/${requestId}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+        }
+      })
+      this.request = response.data.id
+      this.item = response.data.item
       this.userOption = 'For someone special'
-      this.user = request.user_id
-      this.name = request.user_name
+      this.user = response.data.user.id
+      this.name = response.data.user.name
     }
     await this.getUsers()
   },
@@ -152,7 +159,7 @@ export default {
       this.files.forEach((file, index) => {
         formData.append(`files[${index}]`, file, file.name)
       })
-      const results = await Api.postItem(formData)
+      const results = 'test' // await Api.postItem(formData)
       if (results) {
         this.$toast.open({
           message: 'Item listed!',
@@ -162,10 +169,15 @@ export default {
       }
     },
     async getUsers () {
-      const results = await Api.getUsers()
-      if (results) {
-        this.users = results
-      }
+      const response = await axios({
+        method: 'GET',
+        url: '/api/users',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+        }
+      })
+      this.users = response.data
     }
   }
 }

@@ -109,7 +109,7 @@ export default {
       })
     },
     handleFulfull: function () {
-      this.$router.push({ name: 'Items', query: { list: true, request: this.request.id } })
+      this.$router.push({ name: 'Items', query: { list: true, request: this.id } })
     },
     delete: async function () {
       try {
