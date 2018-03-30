@@ -148,25 +148,47 @@ export default {
       if (this.itemFieldDanger) {
         return
       }
-      const formData = new FormData()
-      formData.append('name', this.item)
-      formData.append('description', this.description)
-      formData.append('userOption', this.userOption)
-      formData.append('user', this.userOption === 'For someone special' ? this.user : '')
-      if (this.request) {
-        formData.append('request', this.request)
-      }
-      this.files.forEach((file, index) => {
-        formData.append(`files[${index}]`, file, file.name)
-      })
-      const results = 'test' // await Api.postItem(formData)
-      if (results) {
-        this.$toast.open({
-          message: 'Item listed!',
-          type: 'is-success'
+      // first upload metadata
+      try {
+        let response = await axios({
+          method: 'POST',
+          url: '/api/items',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          },
+          data: {
+            name: this.item,
+            description: this.description,
+            user_id: this.userOption === 'For someone special' ? this.user : undefined,
+            request_id: this.request ? this.request : undefined
+          }
         })
-        Object.assign(this.$data, this.$options.data())
+        const newItemId = response.data.id
+        // then upload any images
+        if (this.files.length > 0) {
+          const formData = new FormData()
+          this.files.forEach((file, index) => {
+            formData.append(`files[${index}]`, file, file.name)
+          })
+          response = await axios.post(`/api/items/${newItemId}/images`, formData, {
+            headers: {
+              'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+            }
+          })
+          console.log('image upload: ', response.data)
+        }
+      } catch (err) {
+        this.$toast.open({
+          message: 'Unable to post your item! :(',
+          type: 'is-danger'
+        })
       }
+
+      this.$toast.open({
+        message: 'Item listed!',
+        type: 'is-success'
+      })
     },
     async getUsers () {
       const response = await axios({

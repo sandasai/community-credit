@@ -23,14 +23,29 @@ router.get('/items', async (req, res) => {
 })
 
 router.post('/items', async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, user_id, request_id } = req.body;
+  console.log(name)
   let item = new Models.Item({
     name,
     description,
     owner_id: req.user.id,
     holder_id: req.user.id,
-    status: 'Available'
   })
+  if (user_id || user_id === 0) {
+    const associatedUser = await Models.User.where({ id: user_id }).fetch()
+    if (!associatedUser) {
+      return res.status(400).json({ message: 'Invalid user_id' })
+    }
+    item.set('associated_user_id', user_id)
+  }
+  if (request_id || request_id === 0) {
+    const associatedRequest = await Models.Request.where({ id: request_id }).fetch()
+    if (!associatedRequest) {
+      return res.status(400).json({ message: 'Invalid request_id' })
+    }
+    item.set('associated_request_id', request_id)
+  }
+  item.set('status', ((user_id || user_id === 0) ? 'Unavailable' : 'Available'))
   item = await item.save()
   item = await Models.Item.where({ id: item.id }).fetch({
     withRelated: [

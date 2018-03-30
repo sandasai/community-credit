@@ -28,6 +28,12 @@ const Item = bookshelf.Model.extend({
   images: function () {
     return this.hasMany(ItemImage)
   },
+  associated_user: function () {
+    return this.belongsTo(User, 'associated_user_id')
+  },
+  associated_request: function () {
+    return this.belongsTo(Request, 'associated_request_id')
+  },
   hasTimestamps: true
 })
 

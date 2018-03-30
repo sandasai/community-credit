@@ -62,6 +62,41 @@ describe('items', function () {
       assert.equal(response.data.owner.id, testUserA.id)
       assert.equal(response.data.holder.id, testUserA.id)
     })
+
+    it('should be able to post an item on behalf of a user request', async function () {
+      // generate request
+      item = faker.commerce.productName()
+      description = faker.company.bsNoun()
+      response = await axios.post('/requests', {
+        item,
+        description
+      })
+      const userId = response.data.user.id
+      const requestId = response.data.id
+      name = faker.commerce.productName()
+      description = faker.commerce.productName()
+      response = await axiosB.post('/items', {
+        name,
+        description,
+        request_id: response.data.id,
+        user_id: response.data.user.id
+      })
+      assert.equal(response.data.associated_user_id, testUserA.id)
+      assert.equal(response.data.associated_request_id, requestId)
+      assert.equal(response.data.status, 'Unavailable')
+    })
+
+    it('should be able to post an item on behalf of a user', async function () {
+      name = faker.commerce.productName()
+      description = faker.commerce.productName()
+      response = await axiosB.post('/items', {
+        name,
+        description,
+        user_id: testUserA.id
+      })
+      assert.equal(response.data.associated_user_id, testUserA.id)
+      assert.equal(response.data.status, 'Unavailable')
+    })
   })
 
   describe('PUT /items/:id', function () {
