@@ -14,6 +14,16 @@ require('../node_modules/font-awesome/css/font-awesome.min.css')
 
 Vue.config.productionTip = false
 
+var communityCredit = {
+  data: function () {
+    return {
+      myId: Number(window.localStorage.getItem('community-credit-id'))
+    }
+  }
+}
+
+Vue.mixin(communityCredit)
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

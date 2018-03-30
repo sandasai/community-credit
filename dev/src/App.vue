@@ -7,7 +7,7 @@
           <img src="https://imageog.flaticon.com/icons/png/512/32/32719.png?size=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF" alt="Community Credit">
           Community Credit
         </router-link>
-        <small class="navbar-item">Hello user {{ myId }}</small>
+        <small class="navbar-item">Hello user {{ this.myId }}</small>
         <a
           v-on:click="toggleBurger"
           :class="{ 'is-active': menuIsActive}"
@@ -71,9 +71,6 @@ export default {
   computed: {
     isAuthorized () {
       return window.localStorage.getItem('community-credit-token')
-    },
-    myId: function () {
-      return window.localStorage.getItem('community-credit-id')
     }
   },
   methods: {

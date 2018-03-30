@@ -73,6 +73,7 @@ router.use('/items/:id', async (req, res, next) => {
   }
   item = await Models.Item.where({ id: item.id }).fetch({
     withRelated: [
+      'images',
       {
         'owner': function (query) {
           query.column('id', 'name', 'email')
@@ -82,7 +83,7 @@ router.use('/items/:id', async (req, res, next) => {
         'holder': function (query) {
           query.column('id', 'name', 'email')
         }
-      }
+      },
     ]
   })
   req.item = item
@@ -127,6 +128,7 @@ router.post('/items/:id/images', async (req, res) => {
     if (err) {
       return res.status(400).json(err)
     }
+    console.log(files)
     const fileKeys = Object.keys(files)
     try {
       for (let fileKey of fileKeys) {

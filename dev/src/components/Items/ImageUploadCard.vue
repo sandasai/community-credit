@@ -1,5 +1,5 @@
 <template>
-  <form @submit="submit">
+  <form>
     <b-loading :active.sync="isLoading"></b-loading>
     <div class="modal-card">
       <header class="modal-card-head">
@@ -7,13 +7,13 @@
       </header>
       <section class="modal-card-body has-text-centered">
         <!-- Content ... -->
-        <file-upload v-model="files" 
+        <file-upload v-model="files"
           prompt="Drop your photos here or click to upload!"
           accept="image/*"
         />
       </section>
       <footer class="modal-card-foot">
-        <button class="button is-success" type="submit">Upload!</button>
+        <button class="button is-success" type="submit" @click="submit">Upload!</button>
         <button class="button" @click="$parent.close()">Cancel</button>
       </footer>
     </div>
@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import * as Api from '@/services/api'
 import FileUpload from '@/components/common/FileUpload'
+import axios from 'axios'
 
 export default {
   name: 'image-upload-card',
@@ -32,30 +32,35 @@ export default {
       isLoading: false
     }
   },
-  props: ['itemId'],
+  props: ['item_id'],
   components: {
     FileUpload
   },
   methods: {
     submit: async function () {
+      this.isLoading = true
       const formData = new FormData()
-      this.files.forEach((file, index) => {
+      this.files.forEach(function (file, index) {
         formData.append(`files[${index}]`, file, file.name)
       })
-      this.isLoading = true
-      const image = await Api.postItemImage(this.itemId, formData)
-      if (image) {
+      try {
+        await axios.post(`/api/items/${this.item_id}/images`, formData, {
+          headers: {
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          }
+        })
         this.$toast.open({
-          message: 'Photos added!',
+          message: 'Image posted!',
           type: 'is-success'
         })
-      } else {
+        this.$emit('upload', this.files)
+      } catch (err) {
         this.$toast.open({
-          message: 'Unable to upload photos',
+          message: 'Unable to upload image',
           type: 'is-danger'
         })
       }
-      this.$emit('upload')
+
       this.isLoading = false
       this.$parent.close()
     }

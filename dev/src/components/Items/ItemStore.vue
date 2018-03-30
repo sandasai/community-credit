@@ -78,9 +78,6 @@ export default {
     }
   },
   computed: {
-    myId: function () {
-      return Number(window.localStorage.getItem('community-credit-id'))
-    },
     myItems: function () {
       return this.items.filter(item => {
         return Number(item.owner_id) === this.myId
