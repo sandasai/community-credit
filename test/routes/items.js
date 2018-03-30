@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const Models = require('../models')
+const formidable = require('formidable')
+const CloudinaryService = require('../cloudinary')
 
 router.get('/items', async (req, res) => {
   const items = await Models.Item.fetchAll({
@@ -101,6 +103,49 @@ router.put('/items/:id', async (req, res) => {
     ]
   })
   return res.status(201).json(item.serialize())
+})
+
+router.post('/items/:id/images', async (req, res) => {
+  const item = req.item
+  const form = new formidable.IncomingForm()
+  form.parse(req, async function (err, fields, files) {
+    if (err) {
+      return res.status(400).json(err)
+    }
+    const fileKeys = Object.keys(files)
+    try {
+      for (let fileKey of fileKeys) {
+        const file = files[fileKey]
+        // upload to cloudinary, save image objects
+        const result = await CloudinaryService.uploadImageFile(file)
+        const { width, height, format, bytes, url, public_id } = result
+        const image = new Models.ItemImage({
+          width,
+          height,
+          format,
+          bytes,
+          url,
+          remote_id: public_id,
+          item_id: item.id
+        })
+        await image.save()
+      }
+    } catch (err) {
+      return res.status(400).json(err)
+    }
+    const itemImages = await Models.ItemImage.where({ item_id: item.id }).fetchAll()
+    return res.status(200).json(itemImages.serialize())
+  })
+})
+
+router.delete('/items/:id/images/:imageId', async (req, res) => {
+  const image = await Models.ItemImage.where({ id: req.params.imageId }).fetch();
+  if (image) {
+    await image.destroy()
+    return res.status(202).json()
+  } else {
+    return res.status(404).json({ message: 'Image does not exist '})
+  }
 })
 
 router.delete('/items/:id', async (req, res) => {

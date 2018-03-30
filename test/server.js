@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }))
-app.use(bodyParser.json())
+app.use(bodyParser.json({ type: 'application/json' }))
 
 // Enabls CORS
 app.use(require('cors')())

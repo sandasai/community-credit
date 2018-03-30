@@ -13,6 +13,10 @@ const Request = bookshelf.Model.extend({
   hasTimestamps: true
 })
 
+const ItemImage = bookshelf.Model.extend({
+  tableName: 'item_images'
+})
+
 const Item = bookshelf.Model.extend({
   tableName: 'items',
   owner: function () {
@@ -21,9 +25,12 @@ const Item = bookshelf.Model.extend({
   holder: function () {
     return this.belongsTo(User, 'holder_id')
   },
+  images: function () {
+    return this.hasMany(ItemImage)
+  },
   hasTimestamps: true
 })
 
 module.exports = {
-  User, Request, Item
+  User, Request, Item, ItemImage
 }

@@ -1,1 +1,7 @@
 /node_modules
+
+# image test files
+/test/images
+
+# text editor stuff
+/.vscode
