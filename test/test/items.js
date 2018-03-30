@@ -144,6 +144,17 @@ describe('items', function () {
         assert.equal(err.response.status, 401)
       }
     })
+
+    it('should allow the owner to update the status', async function () {
+      try {
+        response = await axiosB.put(`/items/${itemId}`, {
+          status: 'Unavailable'
+        })
+        assert.equal(response.data.status, 'Unavailable')
+      } catch (err) {
+        assert.fail()
+      }
+    })
   })
 
   describe('DELETE /items/:id', function () {

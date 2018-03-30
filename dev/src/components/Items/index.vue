@@ -52,14 +52,14 @@
           <br>
 
           <div class="item-header-actions">
-            <a class="button" @click="like">
+            <a class="button" @click="like" disabled>
               <span class="icon is-small">
                 <i class="fa" :class="{ 'fa-heart liked': liked, 'fa-heart-o': liked }"></i>
               </span>
               <span>{{ likes }} Likes</span>
             </a>
             <template v-if="status === 'Available'">
-              <a class="button">
+              <a class="button" disabled>
                 <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
                 <span>Request</span>
               </a>
@@ -163,6 +163,7 @@ export default {
   mounted: async function () {
     // this.resetEdit()
     await this.getItem()
+    this.resetEdit()
   },
   methods: {
     getItem: async function () {
@@ -184,18 +185,31 @@ export default {
       await this.$store.dispatch('postItemComment', { id: this.id, comment: comment })
     },
     saveEdit: async function () {
-      await this.$store.dispatch('putItem',
-        {
-          id: this.id,
-          name: this.editingName,
-          description: this.editingDescription
-        }
-      )
+      try {
+        await axios({
+          method: 'PUT',
+          url: `/api/items/${this.$route.params.id}`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          },
+          data: {
+            name: this.editingName,
+            description: this.editingDescription
+          }
+        })
+        this.$toast.open({
+          message: 'Item updated',
+          type: 'is-success'
+        })
+        await this.getItem()
+      } catch (err) {
+        this.$toast.open({
+          message: 'Unable to update :(',
+          type: 'is-danger'
+        })
+      }
       this.resetEdit()
-      this.$toast.open({
-        message: 'Item updated',
-        type: 'is-success'
-      })
     },
     resetEdit: function () {
       this.editing = false
@@ -203,8 +217,29 @@ export default {
       this.editingDescription = this.description
     },
     changeStatus: async function (status) {
-      // await Api.putItem(this.item.id, null, null, status)
-      await this.$store.dispatch('getItem', this.item.id)
+      try {
+        await axios({
+          method: 'PUT',
+          url: `/api/items/${this.$route.params.id}`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          },
+          data: {
+            status
+          }
+        })
+        this.$toast.open({
+          message: 'Item updated',
+          type: 'is-success'
+        })
+        await this.getItem()
+      } catch (err) {
+        this.$toast.open({
+          message: 'Unable to update :(',
+          type: 'is-danger'
+        })
+      }
     },
     like: async function () {
       // await Api.postLike(this.item.id)

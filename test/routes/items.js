@@ -99,10 +99,11 @@ router.put('/items/:id', async (req, res) => {
     return res.status(401).json({})
   }
   let item = req.item
-  const { name, description } = req.body;
+  const { name, description, status } = req.body;
   item = await item.save({
     name,
-    description
+    description,
+    status
   }, { patch: true })
   item = await Models.Item.where({ id: item.id }).fetch({
     withRelated: [
