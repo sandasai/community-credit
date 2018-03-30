@@ -108,7 +108,7 @@ export default {
     }
   },
   mounted: async function () {
-    this.items = await this.getItems()
+    await this.getItems()
   },
   methods: {
     getItems: async function () {
@@ -120,11 +120,11 @@ export default {
           'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
         }
       })
-      return response.data
+      this.items = response.data
     },
     searchFilter: async function (text) {
       if (text.length === 0) {
-        this.items = await this.getItems()
+        this.getItems()
       } else {
         this.items = this.items.filter(item => {
           return true // TODO: for now

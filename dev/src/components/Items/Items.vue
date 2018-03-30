@@ -1,11 +1,11 @@
 <template>
   <div class="section">
-    <b-tabs v-model="activeTab">
+    <b-tabs v-model="activeTab" @change="handleTabChange">
       <b-tab-item label="Store" icon-pack="fa" icon="balance-scale">
-        <item-store />
+        <item-store ref="store"/>
       </b-tab-item>
       <b-tab-item label="List an Item" icon="upload">
-        <item-form />      
+        <item-form />
       </b-tab-item>
     </b-tabs>
   </div>
@@ -34,6 +34,11 @@ export default {
         this.activeTab = 1
       } else if (this.$route.query.store) {
         this.activeTab = 0
+      }
+    },
+    handleTabChange: async function (tabNumber) {
+      if (tabNumber === 0) {
+        await this.$refs.store.getItems()
       }
     }
   }
