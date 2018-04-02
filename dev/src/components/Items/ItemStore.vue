@@ -47,6 +47,7 @@
 <script>
 import axios from 'axios'
 import ItemCard from './ItemCard'
+import qs from 'query-string'
 
 function sortItemsAlphabetically (a, b) {
   if (a.name.toLowerCase() < b.name.toLowerCase()) {
@@ -74,7 +75,9 @@ export default {
       selectedItem: null,
       filter: 'All',
       sortBy: 'Recently Available',
-      items: []
+      items: [],
+      itemPage: 1,
+      loadingItems: false
     }
   },
   computed: {
@@ -107,17 +110,33 @@ export default {
   mounted: async function () {
     await this.getItems()
   },
+  created: function () {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  destroyed: function () {
+    window.removeEventListener('scroll', this.handleScroll)
+  },
   methods: {
     getItems: async function () {
-      const response = await axios({
-        method: 'GET',
-        url: '/api/items',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
-        }
+      const params = qs.stringify({
+        page: this.itemPage
       })
-      this.items = response.data
+      try {
+        const response = await axios({
+          method: 'GET',
+          url: `/api/items?${params}`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          }
+        })
+        this.items = this.items.concat(response.data)
+        this.itemPage++
+      } catch (err) {
+        console.log(err)
+        console.log('Unable to load items')
+      }
+      this.loadingItems = false
     },
     searchFilter: async function (text) {
       if (text.length === 0) {
@@ -131,25 +150,41 @@ export default {
     handleCardClick: function (index) {
       this.selectedItem = index
       this.$router.push({ name: 'ItemPage', params: { id: this.items[index].id } })
+    },
+    handleScroll: function (event) {
+      if (((window.innerHeight + window.scrollY) >= document.body.offsetHeight) && !this.loadingItems) {
+        this.getItems()
+      }
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+// .item-list {
+//   column-count: 4;
+//   column-width: 275px;
+//   column-gap: 0px;
+//   margin: 0;
+// }
+
+// .item-list > * {
+//   margin: 10px;
+//   display: inline-block;
+//   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+//   page-break-inside: avoid; /* Firefox */
+//   break-inside: avoid; /* IE 10+ */
+//   width: calc(100% - 20px)
+// }
+
 .item-list {
-  column-count: 4;
-  column-width: 275px;
-  column-gap: 0px;
-  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .item-list > * {
   margin: 10px;
-  display: inline-block;
-  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
-  page-break-inside: avoid; /* Firefox */
-  break-inside: avoid; /* IE 10+ */
+  width: calc(20vw);
 }
 
 .item-detail {

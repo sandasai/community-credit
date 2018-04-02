@@ -52,11 +52,11 @@
           <br>
 
           <div class="item-header-actions">
-            <a class="button" @click="like" disabled>
+            <a class="button" @click="like">
               <span class="icon is-small">
-                <i class="fa" :class="{ 'fa-heart liked': liked, 'fa-heart-o': liked }"></i>
+                <i class="fa" :class="{ 'fa-heart liked': liked, 'fa-heart-o': !liked }"></i>
               </span>
-              <span>{{ likes }} Likes</span>
+              <span>{{ likes.length }} Likes</span>
             </a>
             <template v-if="status === 'Available'">
               <a class="button" disabled>
@@ -151,7 +151,7 @@ export default {
       holder_id: -1000,
       status: 'Not ready',
       images: [],
-      likes: 0,
+      likes: [],
       liked: false
     }
   },
@@ -242,8 +242,22 @@ export default {
       }
     },
     like: async function () {
-      // await Api.postLike(this.item.id)
-      await this.$store.dispatch('getItem', this.item.id)
+      try {
+        await axios({
+          method: this.liked ? 'DELETE' : 'POST',
+          url: `/api/items/${this.$route.params.id}/likes`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          }
+        })
+        await this.getItem()
+      } catch (err) {
+        this.$toast.open({
+          message: 'Error posting like',
+          type: 'is-danger'
+        })
+      }
     },
     deleteImage: async function (index) {
       // await Api.deleteImage(this.item.images[index].id)

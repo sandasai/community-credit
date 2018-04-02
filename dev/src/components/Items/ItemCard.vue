@@ -2,9 +2,9 @@
   <div class="card">
     <div class="card-image">
       <img
-        v-if="item.images"
+        v-if="item.images && item.images.length > 0"
         v-bind:src="item.images[0].url"
-        v-bind:class="{ 'small-card-image' : size == 'small', 'large-card-image' : size == 'large'}"
+        v-bind:class="{ 'small-card-image' : size == 'small', 'large-card-image' : size == 'large' }"
         alt=""
       >
     </div>
@@ -45,4 +45,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.card {
+  cursor: pointer;
+}
 </style>

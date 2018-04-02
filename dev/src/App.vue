@@ -27,10 +27,19 @@
             <router-link @click.native="menuIsActive = false" class="navbar-item" to="/">Activity</router-link>
             <router-link @click.native="menuIsActive = false" class="navbar-item" to="/items">Items</router-link>
             <router-link @click.native="menuIsActive = false" class="navbar-item" to="/requests">Requests</router-link>
-            <router-link @click.native="menuIsActive = false" class="navbar-item" to="/profile">Profile</router-link>
-            <a class="navbar-item" v-on:click="handleLogOut">
-              Log Out
-            </a>
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link">
+                <span class="icon">
+                  <i class="fa fa-cog fa-2x"></i>
+                </span>
+              </a>
+              <div class="navbar-dropdown">
+                <router-link @click.native="menuIsActive = false" class="navbar-item" to="/profile">Profile</router-link>
+                <a class="navbar-item" v-on:click="handleLogOut">
+                  Log Out
+                </a>
+              </div>
+            </div>
           </template>
           <!--  not signed in -->
           <template v-if="!isAuthorized">
