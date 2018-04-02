@@ -13,6 +13,7 @@ router.get('/items', async (req, res) => {
       page: page || 1,
       withRelated: [
         'images',
+        'likes',
         {
           'owner': function (query) {
             query.column('id', 'name', 'email')
@@ -25,17 +26,14 @@ router.get('/items', async (req, res) => {
         },
       ],
   })
-  console.log('single', items.models[0].relations.images)
   const itemsSerialized = items.models.map(model => {
     return model.serialize()
   })
-  //console.log(itemsSerialized)
   return res.status(200).json(itemsSerialized)
 })
 
 router.post('/items', async (req, res) => {
   const { name, description, user_id, request_id } = req.body;
-  console.log(name)
   let item = new Models.Item({
     name,
     description,
@@ -85,6 +83,7 @@ router.use('/items/:id', async (req, res, next) => {
   item = await Models.Item.where({ id: item.id }).fetch({
     withRelated: [
       'images',
+      'likes',
       {
         'owner': function (query) {
           query.column('id', 'name', 'email')
@@ -102,7 +101,7 @@ router.use('/items/:id', async (req, res, next) => {
 })
 
 router.get('/items/:id', async (req, res) => {
-  return res.status(200).json(req.item.serialize())
+  return res.status(200).json({ ...req.item.serialize(), liked: await req.item.liked(req.user.id) })
 })
 
 router.put('/items/:id', async (req, res) => {
@@ -140,7 +139,6 @@ router.post('/items/:id/images', async (req, res) => {
     if (err) {
       return res.status(400).json(err)
     }
-    console.log(files)
     const fileKeys = Object.keys(files)
     try {
       for (let fileKey of fileKeys) {
@@ -183,6 +181,35 @@ router.delete('/items/:id', async (req, res) => {
   }
   await req.item.destroy()
   return res.status(202).json()
+})
+
+router.post('/items/:id/likes', async (req, res) => {
+  let itemLike = await Models.ItemLike.where({
+    user_id: req.user.attributes.id,
+    item_id: req.item.attributes.id
+  }).fetch()
+  if (itemLike) {
+    return res.status(400).json({ message: 'Already liked item' })
+  }
+  // check if user has already liked it
+  itemLike = new Models.ItemLike({
+    user_id: req.user.id,
+    item_id: req.item.id
+  })
+  itemLike = await itemLike.save()
+  return res.status(201).json(itemLike.serialize())
+})
+
+router.delete('/items/:id/likes', async (req, res) => {
+  let itemLike = await Models.ItemLike.where({
+    user_id: req.user.attributes.id,
+    item_id: req.item.attributes.id
+  }).fetch()
+  if (!itemLike) {
+    return res.status(400).json({ message: 'You didn\'t liked the item' })
+  }
+  await itemLike.destroy()
+  return res.status(204).json()
 })
 
 module.exports = router

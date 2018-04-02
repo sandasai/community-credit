@@ -146,14 +146,10 @@ describe('items', function () {
     })
 
     it('should allow the owner to update the status', async function () {
-      try {
-        response = await axiosB.put(`/items/${itemId}`, {
-          status: 'Unavailable'
-        })
-        assert.equal(response.data.status, 'Unavailable')
-      } catch (err) {
-        assert.fail()
-      }
+      response = await axios.put(`/items/${itemId}`, {
+        status: 'Unavailable'
+      })
+      assert.equal(response.data.status, 'Unavailable')
     })
   })
 

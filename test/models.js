@@ -31,7 +31,14 @@ const Item = bookshelf.Model.extend({
   associated_request: function () {
     return this.belongsTo(Request, 'associated_request_id')
   },
-  hasTimestamps: true
+  likes: function () {
+    return this.hasMany(ItemLike)
+  },
+  hasTimestamps: true,
+  liked: async function (user_id) {
+    const itemLike = await ItemLike.where({ user_id, item_id: this.attributes.id }).fetch()
+    return itemLike ? true : false
+  }
 })
 
 
@@ -39,9 +46,21 @@ const ItemImage = bookshelf.Model.extend({
   tableName: 'item_images',
   item: function () {
     return this.belongsTo(Item, 'item_id', 'id')
-  }
+  },
+  hasTimestamps: true
+})
+
+const ItemLike = bookshelf.Model.extend({
+  tableName: 'item_likes',
+  user: function () {
+    return this.belongsTo(User, 'user_id', 'id')
+  },
+  item: function () {
+    return this.belongsTo(Item, 'item_id', 'id')
+  },
+  hasTimestamps: true
 })
 
 module.exports = {
-  User, Request, Item, ItemImage
+  User, Request, Item, ItemImage, ItemLike
 }
