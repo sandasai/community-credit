@@ -1,4 +1,5 @@
 const bookshelf = require('./db').bookshelf
+bookshelf.plugin('pagination')
 
 const User = bookshelf.Model.extend({
   tableName: 'users',
@@ -11,10 +12,6 @@ const Request = bookshelf.Model.extend({
     return this.belongsTo(User)
   },
   hasTimestamps: true
-})
-
-const ItemImage = bookshelf.Model.extend({
-  tableName: 'item_images'
 })
 
 const Item = bookshelf.Model.extend({
@@ -35,6 +32,14 @@ const Item = bookshelf.Model.extend({
     return this.belongsTo(Request, 'associated_request_id')
   },
   hasTimestamps: true
+})
+
+
+const ItemImage = bookshelf.Model.extend({
+  tableName: 'item_images',
+  item: function () {
+    return this.belongsTo(Item, 'item_id', 'id')
+  }
 })
 
 module.exports = {

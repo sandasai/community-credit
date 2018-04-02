@@ -5,21 +5,32 @@ const formidable = require('formidable')
 const CloudinaryService = require('../cloudinary')
 
 router.get('/items', async (req, res) => {
-  const items = await Models.Item.fetchAll({
-    withRelated: [
-      {
-        'owner': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      },
-      {
-        'holder': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      }
-    ]
+  const page = req.query.page
+  const items = await Models.Item.query(function (qb) {
+      qb.orderBy('updated_at', 'DESC');
+    }).fetchPage({
+      pageSize: 16,
+      page: page || 1,
+      withRelated: [
+        'images',
+        {
+          'owner': function (query) {
+            query.column('id', 'name', 'email')
+          }
+        },
+        {
+          'holder': function (query) {
+            query.column('id', 'name', 'email')
+          }
+        },
+      ],
   })
-  return res.status(200).json(items.serialize())
+  console.log('single', items.models[0].relations.images)
+  const itemsSerialized = items.models.map(model => {
+    return model.serialize()
+  })
+  //console.log(itemsSerialized)
+  return res.status(200).json(itemsSerialized)
 })
 
 router.post('/items', async (req, res) => {
