@@ -34,10 +34,27 @@ const Item = bookshelf.Model.extend({
   likes: function () {
     return this.hasMany(ItemLike)
   },
+  requests: function () {
+    return this.hasMany(ItemRequest)
+  },
+  logs: function () {
+    return this.hasMany(ItemLog)
+  },
   hasTimestamps: true,
   liked: async function (user_id) {
     const itemLike = await ItemLike.where({ user_id, item_id: this.attributes.id }).fetch()
     return itemLike ? true : false
+  },
+  requested: async function (user_id) {
+    const itemRequest = await ItemRequest.where({ user_id, item_id: this.attributes.id }).fetch()
+    return itemRequest ? true : false
+  },
+  serializeFull: async function (user_id) {
+    return {
+      ...this.serialize(),
+      liked: await this.liked(user_id),
+      requested: await this.requested(user_id)
+    }
   }
 })
 
@@ -61,6 +78,28 @@ const ItemLike = bookshelf.Model.extend({
   hasTimestamps: true
 })
 
+const ItemRequest = bookshelf.Model.extend(({
+  tableName: 'item_requests',
+  user: function () {
+    return this.belongsTo(User, 'user_id', 'id')
+  },
+  item: function () {
+    return this.belongsTo(Item, 'item_id', 'id')
+  },
+  hasTimestamps: true
+}))
+
+const ItemLog = bookshelf.Model.extend(({
+  tableName: 'item_logs',
+  user: function () {
+    return this.belongsTo(User, 'user_id', 'id')
+  },
+  item: function () {
+    return this.belongsTo(Item, 'item_id', 'id')
+  },
+  hasTimestamps: true
+}))
+
 module.exports = {
-  User, Request, Item, ItemImage, ItemLike
+  User, Request, Item, ItemImage, ItemLike, ItemRequest, ItemLog
 }

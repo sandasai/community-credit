@@ -189,4 +189,18 @@ describe('items', function () {
       }
     })
   })
+
+  describe('item logs', function () {
+    let item
+
+    beforeEach(async function () {
+      name = faker.commerce.productName()
+      description = faker.commerce.productName()
+      const response = await axios.post('/items', {
+        name,
+        description
+      })
+      item = response
+    })
+  })
 })

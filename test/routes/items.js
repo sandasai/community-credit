@@ -4,6 +4,32 @@ const Models = require('../models')
 const formidable = require('formidable')
 const CloudinaryService = require('../cloudinary')
 
+async function fetchItem (id) {
+  return Models.Item.where({ id }).fetch({
+    withRelated: [
+      'images',
+      'likes',
+      'requests',
+      'logs',
+      {
+        'logs.user': function (query) { // nested relationships with '.'
+          query.column('id', 'name', 'email')
+        }
+      },
+      {
+        'owner': function (query) {
+          query.column('id', 'name', 'email')
+        }
+      },
+      {
+        'holder': function (query) {
+          query.column('id', 'name', 'email')
+        }
+      }
+    ]
+  })
+}
+
 router.get('/items', async (req, res) => {
   const page = req.query.page
   const items = await Models.Item.query(function (qb) {
@@ -56,52 +82,23 @@ router.post('/items', async (req, res) => {
   }
   item.set('status', ((user_id || user_id === 0) ? 'Unavailable' : 'Available'))
   item = await item.save()
-  item = await Models.Item.where({ id: item.id }).fetch({
-    withRelated: [
-      {
-        'owner': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      },
-      {
-        'holder': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      }
-    ]
-  })
+  item = await fetchItem(item.id)
   return res.status(201).json(item.serialize())
 })
 
 router.use('/items/:id', async (req, res, next) => {
   const itemId = req.params.id
   const { name, description } = req.body;
-  let item = await Models.Item.where({ id: itemId }).fetch()
+  let item = await fetchItem(itemId)
   if (!item) {
     return res.status(404).json({ message: 'No item found' })
   }
-  item = await Models.Item.where({ id: item.id }).fetch({
-    withRelated: [
-      'images',
-      'likes',
-      {
-        'owner': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      },
-      {
-        'holder': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      },
-    ]
-  })
   req.item = item
   next()
 })
 
 router.get('/items/:id', async (req, res) => {
-  return res.status(200).json({ ...req.item.serialize(), liked: await req.item.liked(req.user.id) })
+  return res.status(200).json(await req.item.serializeFull(req.user.attributes.id))
 })
 
 router.put('/items/:id', async (req, res) => {
@@ -115,21 +112,8 @@ router.put('/items/:id', async (req, res) => {
     description,
     status
   }, { patch: true })
-  item = await Models.Item.where({ id: item.id }).fetch({
-    withRelated: [
-      {
-        'owner': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      },
-      {
-        'holder': function (query) {
-          query.column('id', 'name', 'email')
-        }
-      }
-    ]
-  })
-  return res.status(201).json(item.serialize())
+  item = await fetchItem(item.id)
+  return res.status(201).json(await req.item.serializeFull(req.user.attributes.id))
 })
 
 router.post('/items/:id/images', async (req, res) => {
@@ -210,6 +194,50 @@ router.delete('/items/:id/likes', async (req, res) => {
   }
   await itemLike.destroy()
   return res.status(204).json()
+})
+
+router.post('/items/:id/requests', async (req, res) => {
+  let item = req.item
+  const user = req.user
+  if (item.attributes.owner_id === user.attributes.id) {
+    return res.status(400).json({ message: 'You can\t request your own item' })
+  }
+  if (await item.requested(user.id)) {
+    return res.status(400).json({ message: 'You already requested this item' })
+  }
+  const itemRequest = new Models.ItemRequest({
+    user_id: user.id,
+    item_id: item.id
+  })
+  await itemRequest.save()
+  item = await fetchItem(item.id)
+  return res.status(201).json(await item.serializeFull(user.attributes.id))
+})
+
+router.post('/items/:id/transfer', async (req, res) => {
+  const { user_id, message } = req.body
+  const user = await Models.User.where({ id: user_id }).fetch();  // User who will recieve item
+  if (!user) {
+    return res.status(400).json({ message: 'No user exists' })
+  }
+  let itemLog = new Models.ItemLog({
+    type: 'transfer',
+    item_id: req.item.attributes.id,
+    user_id: req.user.attributes.id,  // User who posted the log
+    message: `${user.attributes.name} recieved ${req.item.attributes.name} from ${req.item.relations.holder.attributes.name}`,
+    user_message: message
+  })
+  await itemLog.save()
+  // update the item
+  let item = req.item
+  item.set('holder_id', user.id)
+  if (user.id !== req.item.attributes.owner_id) {
+    item.set('status', 'Unavailable')
+  } else {
+    item.set('status', 'Availalble')
+  }
+  await item.save()
+  return res.status(200).json({})
 })
 
 module.exports = router
