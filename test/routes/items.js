@@ -214,6 +214,16 @@ router.post('/items/:id/requests', async (req, res) => {
   return res.status(201).json(await item.serializeFull(user.attributes.id))
 })
 
+router.delete('/items/:id/requests', async (req, res) => {
+  const itemRequests = await Models.ItemRequest.where(
+    {
+      user_id: req.user.attributes.id,
+      item_id: req.item.attributes.id
+    }
+  ).destroy()
+  return res.status(204).json({})
+})
+
 router.post('/items/:id/transfer', async (req, res) => {
   const { user_id, message } = req.body
   const user = await Models.User.where({ id: user_id }).fetch();  // User who will recieve item

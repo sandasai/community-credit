@@ -58,7 +58,7 @@
     </nav>
 
     <!-- Display the main content -->
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
@@ -91,7 +91,6 @@ export default {
         })
     },
     handleLogOut: async function (e) {
-      console.log('logging out!')
       try {
         await axios({
           method: 'POST',

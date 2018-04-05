@@ -2,8 +2,9 @@
   <section class="section">
     <div class="container">
       <h2 class="title is-size-5">History</h2>
+      <!--
       <div class="content">
-        <template v-if="item.owner_id !== $store.state.id && item.holder_id !== $store.state.id">
+        <template v-if="item.owner_id !== myId && item.holder_id !== myId">
           <a v-if="!requested" class="button" @click="request">
             <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
             <span>Request</span>
@@ -14,9 +15,9 @@
           </a>
         </template>
         <a class="button"
-          @click="action === 'talk' ? action = null : action = 'talk'">
+          @click="action === 'comment' ? action = null : action = 'comment'">
           <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
-          <span>Talk</span>
+          <span>Comment</span>
         </a>
         <a class="button"
           v-if="!canDropoff"
@@ -31,17 +32,18 @@
           <span>Drop off</span>
         </a>
       </div>
+      -->
 
       <div>
         <article v-if="action === 'talk'" class="media">
           <div class="media-content">
             <b-field>
               <b-input type="textarea"
-                  maxlength="1000"
-                  placeholder="Add a comment"
-                  v-model="logComments"
+                maxlength="1000"
+                placeholder="Add a comment"
+                v-model="logComments"
               >
-              </b-input>  
+              </b-input>
             </b-field>
             <nav class="level">
               <div class="level-left">
@@ -76,7 +78,7 @@
               type="textarea"
               maxlength="1000"
             >
-            </b-input>  
+            </b-input>
           </b-field>
           <b-field horizontal>
             <p class="control">
@@ -123,7 +125,7 @@
               type="textarea"
               maxlength="1000"
             >
-            </b-input>  
+            </b-input>
           </b-field>
           <b-field horizontal>
             <p class="control">
@@ -143,10 +145,8 @@
 </template>
 
 <script>
-import * as Api from '@/services/api'
+import axios from 'axios'
 import LogEntry from './LogEntry'
-
-const initialDate = new Date()
 
 export default {
   name: 'item-log',
@@ -156,17 +156,17 @@ export default {
   data: function () {
     return {
       action: '',
-      formatAmPm: true,
-      time: initialDate,
-      date: initialDate,
-      comments: '',
-      logComments: '',
-      dropOffUser: '',
-      dropOffUserId: null,
+      // formatAmPm: true,
+      // time: initialDate,
+      // date: initialDate,
+      // comments: '',
+      // logComments: '',
+      // dropOffUser: '',
+      // dropOffUserId: null,
       users: []
     }
   },
-  props: ['actions', 'entries', 'item', 'requested'],
+  props: ['logs'],
   computed: {
     canDropoff: function () {
       return Number(this.item.holder_id) === Number(this.$store.state.id)
@@ -186,74 +186,77 @@ export default {
           .toLowerCase()
           .indexOf(this.dropOffUser.toLowerCase()) >= 0
       })
-    },
-    logs: function () {
-      return this.item.logs
     }
   },
   mounted: async function () {
-    const users = await Api.getUsers()
-    this.users = users
+    this.users = await axios({
+      method: 'GET',
+      url: '/api/users',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+      }
+    }).data
   },
   methods: {
     request: async function () {
-      const result = await Api.postItemRequest(this.item.id)
-      if (result) {
-        this.$toast.open({
-          message: 'Item Requested',
-          type: 'is-success'
-        })
-        this.$emit('update')
-      }
+      // const result = await Api.postItemRequest(this.item.id)
+      // if (result) {
+      //   this.$toast.open({
+      //     message: 'Item Requested',
+      //     type: 'is-success'
+      //   })
+      //   this.$emit('update')
+      // }
     },
     cancelRequest: async function () {
-      const result = await Api.postItemCancelRequest(this.item.id)
-      if (result) {
-        this.$toast.open({
-          message: 'Request canceled'
-        })
-        this.$emit('update')
-      }
+      // const result = await Api.postItemCancelRequest(this.item.id)
+      // if (result) {
+      //   this.$toast.open({
+      //     message: 'Request canceled'
+      //   })
+      //   this.$emit('update')
+      // }
     },
     talk: async function () {
-      const result = await Api.postItemLogComment(this.item.id, this.logComments)
-      if (result) {
-        this.$toast.open({
-          message: 'Comment logged'
-        })
-        this.$emit('update')
-        this.reset()
-      }
+      // const result = await Api.postItemLogComment(this.item.id, this.logComments)
+      // if (result) {
+      //   this.$toast.open({
+      //     message: 'Comment logged'
+      //   })
+      //   this.$emit('update')
+      //   this.reset()
+      // }
     },
     pickup: async function () {
-      const result = await Api.postItemPickup(this.item.id, this.datetime, this.comments)
-      if (result) {
-        this.$toast.open({
-          message: 'Pickup Posted',
-          type: 'is-success'
-        })
-        this.$emit('update')
-        this.reset()
-      }
+      // const result = await Api.postItemPickup(this.item.id, this.datetime, this.comments)
+      // if (result) {
+      //   this.$toast.open({
+      //     message: 'Pickup Posted',
+      //     type: 'is-success'
+      //   })
+      //   this.$emit('update')
+      //   this.reset()
+      // }
     },
     dropoff: async function () {
-      const result = await Api.postItemDropoff(this.item.id, this.datetime, this.dropOffUserId, this.comments)
-      if (result) {
-        this.$toast.open({
-          message: 'Dropoff Posted',
-          type: 'is-success'
-        })
-        this.$emit('update')
-        this.reset()
-      }
+      // const result = await Api.postItemDropoff(this.item.id, this.datetime, this.dropOffUserId, this.comments)
+      // if (result) {
+      //   this.$toast.open({
+      //     message: 'Dropoff Posted',
+      //     type: 'is-success'
+      //   })
+      //   this.$emit('update')
+      //   this.reset()
+      // }
     },
     handleAutocompleteSelection (option) {
-      const user = this.users.filter((user) => {
-        return user.name === option
-      })[0]
-      if (user) {
-        this.dropOffUserId = user.id
-      }
+      // const user = this.users.filter((user) => {
+      //   return user.name === option
+      // })[0]
+      // if (user) {
+      //   this.dropOffUserId = user.id
+      // }
     },
     reset: function () {
       this.action = null
