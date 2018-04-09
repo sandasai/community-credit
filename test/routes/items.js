@@ -250,4 +250,32 @@ router.post('/items/:id/transfer', async (req, res) => {
   return res.status(200).json({})
 })
 
+router.post('/items/:id/comments', async (req, res) => {
+  const { comments } = req.body
+  if (!comments || comments.length === 0) {
+    return res.status(400).json({ message: 'User must include comments'})
+  }
+  let itemLog = new Models.ItemLog({
+    type: 'comment',
+    item_id: req.item.attributes.id,
+    user_id: req.user.attributes.id,
+    user_message: comments,
+    message: `${req.user.attributes.name} commented: ${comments}`
+  })
+  await itemLog.save()
+  return res.status(200).json({})
+})
+
+router.delete('/items/:id/comments/:itemLogId', async (req, res) => {
+  const itemLog = await Models.ItemLog.where({ id: req.params.itemLogId, type: 'comment' }).fetch();
+  if (!itemLog) {
+    return res.status(404).json({ message: 'No item comment exists'})
+  }
+  if (req.user.attributes.id !== req.item.owner_id && req.user.attributes.id !== itemLog.attributes.user_id) {
+    return res.status(400).json({ message: 'You are not authorized to delete the comment'})
+  }
+  await itemLog.destroy()
+  return res.status(204).json({})
+})
+
 module.exports = router

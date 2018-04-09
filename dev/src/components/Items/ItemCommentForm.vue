@@ -21,7 +21,7 @@
 </template>
 
 <script>
-// import axios from 'axios'
+import axios from 'axios'
 
 export default {
   name: 'item-comment-form',
@@ -32,11 +32,29 @@ export default {
   },
   methods: {
     comment: async function () {
-      this.$toast.open({
-        message: 'Comment posted!',
-        type: 'is-success'
-      })
-      this.$emit('submit')
+      try {
+        await axios({
+          method: 'POST',
+          url: `/api/items/${this.$route.params.id}/comments`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+          },
+          data: {
+            comments: this.comments
+          }
+        })
+        this.$toast.open({
+          message: 'Comment posted!',
+          type: 'is-success'
+        })
+        this.$emit('submit')
+      } catch (err) {
+        this.$toast.open({
+          message: 'Unable to post comment!',
+          type: 'is-danger'
+        })
+      }
     }
   }
 }

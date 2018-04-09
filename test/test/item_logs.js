@@ -96,7 +96,6 @@ describe('item logs', async function () {
       response = await axios.get(`/items/${item.id}`)
       const logs = response.data.logs
       assert.isArray(logs)
-      console.log(logs)
       assert.equal(logs[0].user_message, message)
       assert.equal(logs[0].user_id, testUserB.id)
       assert.equal(logs[0].message, `${testUserB.name} recieved ${item.name} from ${testUserA.name}`)

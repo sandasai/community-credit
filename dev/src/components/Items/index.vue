@@ -9,7 +9,7 @@
       <div class="images">
         <carousel :perPage="1">
           <slide v-if="images" v-for="image in images" :key="image.url" @click.native="imageGalleryActive = true">
-            <img v-bind:src="image.url" alt="Placeholder image">
+            <img v-bind:src="transformCarouselImageUrl(image.url)" alt="Placeholder image">
           </slide>
         </carousel>
       </div>
@@ -134,9 +134,13 @@
     :initialHolderName="holder.name  || null"
   />
   <log-entry v-for="log in logs" :key="log.id"
+    :id="log.id"
+    :type="log.type"
     :date="log.updated_at"
     :message="log.message"
     :userMessage="log.user_message"
+    :canDelete="log.type === 'comment' && (log.user_id === myId || log.owner_id === myId)"
+    @submit="handleItemLogSubmit"
   />
 </div>
 </template>
@@ -317,6 +321,11 @@ export default {
     handleItemLogSubmit: async function () {
       this.action = null
       await this.getItem()
+    },
+    transformCarouselImageUrl: function (cloudinaryUrl) {
+      const pos = cloudinaryUrl.search('upload/') + 'upload/'.length
+      const transformation = 'c_lpad,g_center,h_300,w_400'
+      return cloudinaryUrl.slice(0, pos) + transformation + '/' + cloudinaryUrl.slice(pos)
     }
   }
 }
