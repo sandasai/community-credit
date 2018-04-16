@@ -38,7 +38,7 @@ export default {
   computed: {
     myRequests: function () {
       return this.requests.filter(request => {
-        return request.user_id === this.$store.state.id
+        return request.user_id === this.myId
       })
     }
   },

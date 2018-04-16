@@ -110,12 +110,12 @@ router.post('/auth/logout', ...checkLoggedIn, async (req, res) => {
     })
     if (!response.data.ok) {
       console.log(response.data.error)
-      return res.status(500)
+      return res.status(500).json({})
     }
     await req.user.save({ slack_access_token: null }, { patch: true })
     return res.status(200).json({})
   } catch (err) {
-    console.log(err.response.data)
+    console.log(err)
     return res.status(500).json(err.response.data)
   }
 })

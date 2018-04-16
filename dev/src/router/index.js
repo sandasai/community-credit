@@ -27,13 +27,15 @@ const router = new Router({
         functional: true,
         render: function (createElement) {
           const token = window.localStorage.getItem(communityCreditToken)
-          console.log(token)
           return token ? createElement(Activity) : createElement(Landing)
         }
       }),
       beforeEnter: async (to, from, next) => {
         // check if redirected from slack
         const { code } = to.query
+        if (!code || code.length === 0) {
+          return next()
+        }
         const response = await fetch(`/auth/signin`, {
           method: 'POST',
           headers: {
@@ -48,7 +50,7 @@ const router = new Router({
           window.localStorage.setItem(communityCreditToken, payload.token)
           window.localStorage.setItem(communityCreditId, payload.id)
         }
-        next()
+        return next()
       }
     },
     {

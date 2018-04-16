@@ -63,8 +63,6 @@
 </template>
 
 <script>
-import * as Auth from './services/auth'
-import store from './services/store'
 import axios from 'axios'
 
 export default {
@@ -73,23 +71,13 @@ export default {
     return {
       loginEmail: '',
       loginPassword: '',
-      menuIsActive: false
-    }
-  },
-  store,
-  computed: {
-    isAuthorized () {
-      return window.localStorage.getItem('community-credit-token')
+      menuIsActive: false,
+      get isAuthorized () {
+        return window.localStorage.getItem('community-credit-token')
+      }
     }
   },
   methods: {
-    handleLogIn: function (e) {
-      e.preventDefault()
-      Auth.login(this.loginEmail, this.loginPassword)
-        .then(res => {
-          this.$router.push('/')
-        })
-    },
     handleLogOut: async function (e) {
       try {
         await axios({
@@ -102,10 +90,10 @@ export default {
         })
         window.localStorage.removeItem('community-credit-token')
         window.localStorage.removeItem('community-credit-id')
+        this.$forceUpdate()
       } catch (err) {
         console.log(err)
       }
-      this.$router.push('/')
     },
     toggleBurger: function () {
       this.menuIsActive = !this.menuIsActive
