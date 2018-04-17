@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const Models = require('../models')
+const slack = require('../slack')
+const config = require('../../config')
 
 router.get('/requests', async (req, res) => {
   const requests = await Models.Request.fetchAll({
@@ -32,6 +34,7 @@ router.post('/requests', async (req, res) => {
       }
     ]
   })
+  await slack.postRequest(req.user.attributes.name, item, `${config.domain}/requests/${request.attributes.id}`)
   return res.status(201).json(request.serialize())
 })
 

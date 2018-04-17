@@ -3,6 +3,8 @@ const router = express.Router()
 const Models = require('../models')
 const formidable = require('formidable')
 const CloudinaryService = require('../cloudinary')
+const slack = require('../slack')
+const config = require('../../config')
 
 async function fetchItem (id) {
   return Models.Item.where({ id }).fetch({
@@ -83,6 +85,14 @@ router.post('/items', async (req, res) => {
   item.set('status', ((user_id || user_id === 0) ? 'Unavailable' : 'Available'))
   item = await item.save()
   item = await fetchItem(item.id)
+
+  await slack.postNewItem(
+    req.user.attributes.name,
+    name,
+    `${config.domain}/items/${item.id}`,
+    description
+  )
+
   return res.status(201).json(item.serialize())
 })
 
