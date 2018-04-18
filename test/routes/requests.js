@@ -5,15 +5,21 @@ const slack = require('../slack')
 const config = require('../../config')
 
 router.get('/requests', async (req, res) => {
-  const requests = await Models.Request.where({ status: 'pending' }).fetchAll({
-    withRelated: [
-      {
-        'user': function (query) {
-          query.column('id', 'name', 'email')
+  const { page } = req.query
+  const requests = await Models.Request
+    .where({ status: 'pending' })
+    .orderBy('updated_at', 'DESC')
+    .fetchPage({
+      pageSize: 20,
+      page: page || 1,
+      withRelated: [
+        {
+          'user': function (query) {
+            query.column('id', 'name', 'email')
+          }
         }
-      }
-    ]
-  })
+      ]
+    })
   return res.status(200).json(requests.serialize())
 })
 
