@@ -34,13 +34,34 @@
       </div>
     </b-field>
 
-    <div class="item-list">
-      <item-card
-        v-for="(item, index) in whichItems"
-        v-bind:key="item.id"
-        v-bind:item="item"
-        v-on:click.native="handleCardClick(index)"
-        size="small"/>
+    <div class="tile is-ancestor">
+      <div class="tile is-parent is-vertical">
+        <item-card
+          v-bind:item="item"
+          v-for="(item, index) in whichItems"
+          v-if="index % 3 === 0"
+          v-bind:key="item.id"
+          v-on:click.native="handleCardClick(index)"
+          size="small"/>
+      </div>
+      <div class="tile is-parent is-vertical">
+        <item-card
+          v-bind:item="item"
+          v-for="(item, index) in whichItems"
+          v-if="index % 3 === 1"
+          v-bind:key="item.id"
+          v-on:click.native="handleCardClick(index)"
+          size="small"/>
+      </div>
+      <div class="tile is-parent is-vertical">
+        <item-card
+          v-bind:item="item"
+          v-for="(item, index) in whichItems"
+          v-if="index % 3 === 2"
+          v-bind:key="item.id"
+          v-on:click.native="handleCardClick(index)"
+          size="small"/>
+      </div>
     </div>
   </div>
 </template>
@@ -178,16 +199,6 @@ export default {
 //   break-inside: avoid; /* IE 10+ */
 //   width: calc(100% - 20px)
 // }
-
-.item-list {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.item-list > * {
-  margin: 10px;
-  width: calc(20vw);
-}
 
 .item-detail {
   position: absoulte;

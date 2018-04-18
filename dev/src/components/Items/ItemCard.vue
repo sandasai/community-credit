@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="tile is-child card">
     <div class="card-image">
       <img
         v-if="item.images && item.images.length > 0"
