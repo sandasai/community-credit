@@ -6,6 +6,7 @@
         icon="magnify"
         expanded
         v-model="search"
+        @keyup.enter.native="searchFilter"
       />
       <b-select placeholder="Sort by" v-model="sortBy">
         <option>Alphabetical</option>
@@ -117,9 +118,11 @@ export default {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
-    getItems: async function () {
+    getItems: async function (search) {
+      this.loadingItems = true
       const params = qs.stringify({
-        page: this.itemPage
+        page: this.itemPage,
+        search: search || undefined
       })
       try {
         const response = await axios({
@@ -138,14 +141,13 @@ export default {
       }
       this.loadingItems = false
     },
-    searchFilter: async function (text) {
-      if (text.length === 0) {
-        this.getItems()
-      } else {
-        this.items = this.items.filter(item => {
-          return true // TODO: for now
-        })
+    searchFilter: async function () {
+      this.items = []
+      this.itemPage = 1
+      if (this.search.length === 0) {
+        return
       }
+      this.getItems(this.search)
     },
     handleCardClick: function (index) {
       this.selectedItem = index
@@ -153,7 +155,7 @@ export default {
     },
     handleScroll: function (event) {
       if (((window.innerHeight + window.scrollY) >= document.body.offsetHeight) && !this.loadingItems) {
-        this.getItems()
+        this.getItems(this.search)
       }
     }
   }

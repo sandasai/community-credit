@@ -24,6 +24,7 @@
 import RequestsList from './RequestsList'
 import RequestForm from './RequestForm'
 import axios from 'axios'
+import qs from 'query-string'
 
 export default {
   components: {
@@ -32,7 +33,9 @@ export default {
   },
   data: function () {
     return {
-      requests: []
+      requests: [],
+      requestPage: 1,
+      loadingRequests: false
     }
   },
   computed: {
@@ -45,17 +48,34 @@ export default {
   mounted: async function () {
     await this.getRequests()
   },
+  created: function () {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  destroyed: function () {
+    window.removeEventListener('scroll', this.handleScroll)
+  },
   methods: {
     getRequests: async function () {
+      this.loadingRequests = true
+      const params = qs.stringify({
+        page: this.requestPage
+      })
       const response = await axios({
         method: 'GET',
-        url: '/api/requests',
+        url: `/api/requests?${params}`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
         }
       })
-      this.requests = response.data
+      this.requests = this.requests.concat(response.data)
+      this.requestPage++
+      this.loadingRequests = false
+    },
+    handleScroll: function (event) {
+      if (((window.innerHeight + window.scrollY) >= document.body.offsetHeight) && !this.loadingRequests) {
+        this.getRequests()
+      }
     }
   }
 }

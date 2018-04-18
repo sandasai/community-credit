@@ -33,9 +33,12 @@ async function fetchItem (id) {
 }
 
 router.get('/items', async (req, res) => {
-  const page = req.query.page
+  const { page, search } = req.query
   const items = await Models.Item.query(function (qb) {
       qb.orderBy('updated_at', 'DESC');
+      if (search) {
+        qb.whereRaw(`"name" ILIKE '%${search}%'`)
+      }
     }).fetchPage({
       pageSize: 16,
       page: page || 1,
