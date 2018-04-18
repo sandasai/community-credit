@@ -37,6 +37,16 @@ describe('requests', function () {
       assert.equal(testUserA.id, user.id)
       assert.equal(testUserA.name, user.name)
     })
+
+    it('should be created with a pending status', async function () {
+      const item = faker.commerce.productName()
+      const description = faker.company.bsNoun()
+      const response = await axios.post('/requests', {
+        item,
+        description
+      })
+      assert.equal(response.data.status, 'pending')
+    })
   })
 
   describe('PUT /requests/:id', function () {

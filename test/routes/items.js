@@ -4,7 +4,7 @@ const Models = require('../models')
 const formidable = require('formidable')
 const CloudinaryService = require('../cloudinary')
 const slack = require('../slack')
-const config = require('../../config')
+const domain = require('../../config').domain
 
 async function fetchItem (id) {
   return Models.Item.where({ id }).fetch({
@@ -68,30 +68,47 @@ router.post('/items', async (req, res) => {
     owner_id: req.user.id,
     holder_id: req.user.id,
   })
+  let associatedUser
+
+  // user specified the item for aother user
   if (user_id || user_id === 0) {
-    const associatedUser = await Models.User.where({ id: user_id }).fetch()
+    associatedUser = await Models.User.where({ id: user_id }).fetch()
     if (!associatedUser) {
       return res.status(400).json({ message: 'Invalid user_id' })
     }
     item.set('associated_user_id', user_id)
   }
+
+  // this item is associated with a request
   if (request_id || request_id === 0) {
     const associatedRequest = await Models.Request.where({ id: request_id }).fetch()
     if (!associatedRequest) {
       return res.status(400).json({ message: 'Invalid request_id' })
     }
     item.set('associated_request_id', request_id)
+    associatedRequest.set('status', 'fulfilled')
+    await associatedRequest.save()
   }
+
   item.set('status', ((user_id || user_id === 0) ? 'Unavailable' : 'Available'))
   item = await item.save()
   item = await fetchItem(item.id)
 
-  await slack.postNewItem(
-    req.user.attributes.name,
-    name,
-    `${config.domain}/items/${item.id}`,
-    description
-  )
+  if (process.env.NODE_ENV !== 'test') {
+    await slack.postNewItem(
+      req.user.attributes.name,
+      name,
+      `${domain}/items/${item.id}`,
+      description
+    )
+    if (associatedUser) {
+      await slack.postDM(
+        `${associatedUser.attributes.name} listed <${domain}/items/${item.id}|${item.attributes.name}> for you!`,
+        req.user,
+        associatedUser
+      )
+    }
+  }
 
   return res.status(201).json(item.serialize())
 })
@@ -250,6 +267,9 @@ router.post('/items/:id/transfer', async (req, res) => {
   await itemLog.save()
   // update the item
   let item = req.item
+
+  const previousHolder = await Models.User.where({ id: item.attributes.holder_id }).fetch()
+
   item.set('holder_id', user.id)
   if (user.id !== req.item.attributes.owner_id) {
     item.set('status', 'Unavailable')
@@ -257,6 +277,26 @@ router.post('/items/:id/transfer', async (req, res) => {
     item.set('status', 'Availalble')
   }
   await item.save()
+
+  if (process.env.NODE_ENV !== 'test') {
+    const newHolder = await Models.User.where({ id: item.attributes.holder_id }).fetch()
+    const owner = await Models.User.where({ id: item.attributes.owner_id }).fetch()
+    await slack.postDM(
+      `${req.user.attributes.name} transfered <${domain}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
+      newHolder,
+      previousHolder
+    )
+
+    // Someone besides the owner transfer it to another person
+    if (previousHolder.attributes.id !== owner.attributes.id && newHolder.attributes.id !== owner.attributes.id ) {
+      await slack.postDM(
+        `${previousHolder.user.attributes.name} transfered <${domain}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
+        previousHolder,
+        owner
+      )
+    }
+  }
+
   return res.status(200).json({})
 })
 

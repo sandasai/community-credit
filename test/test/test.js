@@ -16,7 +16,7 @@ const testUserB = config.test[1]
 
 const axios = require('axios').create({
   baseURL: `http://localhost:${process.env.PORT}/api`,
-  timeout: 1000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${testUserA.token}`
@@ -25,7 +25,7 @@ const axios = require('axios').create({
 
 const axiosB = require('axios').create({
   baseURL: `http://localhost:${process.env.PORT}/api`,
-  timeout: 1000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${testUserB.token}`

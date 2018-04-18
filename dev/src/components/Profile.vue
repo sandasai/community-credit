@@ -30,7 +30,7 @@ export default {
   name: 'profile',
   data: function () {
     const clientId = config.slack.client_id
-    const scopes = config.slack.scopes.join('')
+    const scopes = config.slack.scopes.join(',')
     return {
       enable: false,
       slackUri: `https://slack.com/oauth/authorize?scope=${scopes}&client_id=${clientId}`

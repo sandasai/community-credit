@@ -47,7 +47,7 @@ describe('item logs', async function () {
     // })
   })
 
-  describe.only('POST /items/:id/transfer', async function () {
+  describe('POST /items/:id/transfer', async function () {
     it('should change the status and holder of the item when user makes transer', async function () {
       let response = await axios.post(`/items/${item.id}/transfer`, {
         user_id: testUserB.id

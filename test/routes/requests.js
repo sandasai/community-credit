@@ -5,7 +5,7 @@ const slack = require('../slack')
 const config = require('../../config')
 
 router.get('/requests', async (req, res) => {
-  const requests = await Models.Request.fetchAll({
+  const requests = await Models.Request.where({ status: 'pending' }).fetchAll({
     withRelated: [
       {
         'user': function (query) {
@@ -22,7 +22,8 @@ router.post('/requests', async (req, res) => {
   let request = new Models.Request({
     item,
     description,
-    user_id: req.user.id
+    user_id: req.user.id,
+    status: 'pending'
   })
   request = await request.save()
   request = await Models.Request.where({ id: request.id }).fetch({
