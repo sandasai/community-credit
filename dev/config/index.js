@@ -5,6 +5,12 @@
 
 const path = require('path')
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config({
+    path: path.resolve(__dirname, '../../.env')
+  })
+}
+
 module.exports = {
   build: {
     env: require('./prod.env'),
@@ -31,7 +37,7 @@ module.exports = {
     autoOpenBrowser: true,
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    
+
     proxyTable: {
       // for development
       '/api': {

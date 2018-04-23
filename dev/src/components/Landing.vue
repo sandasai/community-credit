@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import config from '@/../../config.json'
+const slackClientId = process.env.SLACK_CLIENT_ID
 
 export default {
   name: 'home-page',
@@ -51,8 +51,11 @@ export default {
     return {
       email: '',
       password: '',
-      slackUri: `http://slack.com/oauth/authorize?client_id=${config.slack.client_id}&scope=identity.basic`
+      slackUri: `http://slack.com/oauth/authorize?client_id=${slackClientId}&scope=identity.basic`
     }
+  },
+  mounted: function () {
+    console.log('Process env: ', process.env)
   }
 }
 </script>

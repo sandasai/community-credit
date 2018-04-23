@@ -2,7 +2,9 @@
 <div class="image-gallery">
   <carousel :perPage="1" @pageChange="page => currentPage = page">
     <slide v-for="image in images" :key="image.url">
-      <img :src="image" alt="Image unavailable">
+      <div style="text-align: center;">
+        <img v-bind:src="image" alt="Placeholder image">
+      </div>
     </slide>
   </carousel>
   <a class="button is-inverted is-outlined" @click="trash">

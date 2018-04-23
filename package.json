@@ -1,0 +1,9 @@
+{
+  "name": "communitycredit",
+  "version": "0.1.0",
+  "main": "test/server.js",
+  "scripts": {
+    "heroku-prebuild": "./prebuild.sh",
+    "heroku-postbuild": "./postbuild.sh"
+  }
+}

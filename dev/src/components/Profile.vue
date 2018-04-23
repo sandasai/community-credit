@@ -24,16 +24,15 @@
 </template>
 
 <script>
-import config from '@/../../config.json'
+const slackClientId = process.env.SLACK_CLIENT_ID
+const slackScopes = process.env.SLACK_SCOPES
 
 export default {
   name: 'profile',
   data: function () {
-    const clientId = config.slack.client_id
-    const scopes = config.slack.scopes.join(',')
     return {
       enable: false,
-      slackUri: `https://slack.com/oauth/authorize?scope=${scopes}&client_id=${clientId}`
+      slackUri: `https://slack.com/oauth/authorize?scope=${slackScopes}&client_id=${slackClientId}`
     }
   }
 }

@@ -1,10 +1,10 @@
 <template>
-<div class="container item-page is-large">
+<div class="container is-large">
   <b-modal :active.sync="imageGalleryActive">
-    <gallery :images="imageUrls" @trash="deleteImage"/>
+    <gallery :images="images.map(image => image.url)" @trash="deleteImage"/>
   </b-modal>
 
-  <div class="columns">
+  <div class="columns section-item-images">
     <div v-if="images.length > 0" class="column is-one-third">
       <div class="images">
         <carousel :perPage="1">
@@ -18,7 +18,7 @@
       <image-upload-card :item_id="id" @upload="getItem"/>
     </b-modal>
 
-    <div class="column">
+    <div class="column section-item-info">
       <template v-if="!editing">
         <h1 class="title">{{ name }}</h1>
       </template>
@@ -103,45 +103,47 @@
     </div>
   </div>
 
-  <h2 class="title is-size-5">History</h2>
-  <div class="content">
-    <a class="button"
-      @click="action === 'comment' ? action = null : action = 'comment'">
-      <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
-      <span>Comment</span>
-    </a>
-    <a class="button"
-      v-if="!canDropoff"
-      @click="action === 'pickup' ? action = null : action = 'pickup'">
-      <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
-      <span>Pick up</span>
-    </a>
-    <a class="button"
-      v-if="canDropoff"
-      @click="action === 'dropoff' ? action = null : action = 'dropoff'">
-      <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
-      <span>Drop off</span>
-    </a>
+  <div class="section-item-info">
+    <h2 class="title is-size-5">History</h2>
+    <div class="content">
+      <a class="button"
+        @click="action === 'comment' ? action = null : action = 'comment'">
+        <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
+        <span>Comment</span>
+      </a>
+      <a class="button"
+        v-if="!canDropoff"
+        @click="action === 'pickup' ? action = null : action = 'pickup'">
+        <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
+        <span>Pick up</span>
+      </a>
+      <a class="button"
+        v-if="canDropoff"
+        @click="action === 'dropoff' ? action = null : action = 'dropoff'">
+        <span class="icon is-small"><i class="fa fa-comments-o"></i></span>
+        <span>Drop off</span>
+      </a>
+    </div>
+    <item-comment-form
+      v-if="action === 'comment'"
+      @submit="handleItemLogSubmit"
+    />
+    <item-transfer-form
+      v-if="action === 'pickup' || action === 'dropoff'"
+      :holder="holder_id"
+      @submit="handleItemLogSubmit"
+      :initialHolderName="holder.name  || null"
+    />
+    <log-entry v-for="log in logs" :key="log.id"
+      :id="log.id"
+      :type="log.type"
+      :date="log.updated_at"
+      :message="log.message"
+      :userMessage="log.user_message"
+      :canDelete="log.type === 'comment' && (log.user_id === myId || log.owner_id === myId)"
+      @submit="handleItemLogSubmit"
+    />
   </div>
-  <item-comment-form
-    v-if="action === 'comment'"
-    @submit="handleItemLogSubmit"
-  />
-  <item-transfer-form
-    v-if="action === 'pickup' || action === 'dropoff'"
-    :holder="holder_id"
-    @submit="handleItemLogSubmit"
-    :initialHolderName="holder.name  || null"
-  />
-  <log-entry v-for="log in logs" :key="log.id"
-    :id="log.id"
-    :type="log.type"
-    :date="log.updated_at"
-    :message="log.message"
-    :userMessage="log.user_message"
-    :canDelete="log.type === 'comment' && (log.user_id === myId || log.owner_id === myId)"
-    @submit="handleItemLogSubmit"
-  />
 </div>
 </template>
 
@@ -186,7 +188,9 @@ export default {
   },
   computed: {
     imageUrls: function () {
-      return ['asdf']
+      return this.images.map(image => {
+        return image.url
+      })
     },
     canDropoff: function () {
       return this.myId === this.holder_id
@@ -326,6 +330,11 @@ export default {
       const pos = cloudinaryUrl.search('upload/') + 'upload/'.length
       const transformation = 'c_lpad,g_center,h_300,w_400'
       return cloudinaryUrl.slice(0, pos) + transformation + '/' + cloudinaryUrl.slice(pos)
+    },
+    transformCarouselImageUrlSameWidth: function (url) {
+      const pos = url.search('upload/') + 'upload/'.length
+      const transformation = 'c_scale,h_500'
+      return url.slice(0, pos) + transformation + '/' + url.slice(pos)
     }
   }
 }
@@ -340,11 +349,11 @@ export default {
   color: #F1453D;
 }
 
-.images {
-  padding: 3rem 0;
+.section-item-images {
+  padding: 25px 0;
 }
 
-.item-page {
-  max-width: 1024px;
+.section-item-info {
+  padding: 0 25px;
 }
 </style>
