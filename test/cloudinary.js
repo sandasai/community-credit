@@ -1,14 +1,7 @@
 const cloudinary = require('cloudinary')
 const configParams = require('../config').cloudinary
 
-// TODO: change based on environment
-const { cloud_name, api_key, api_secret } = configParams
-
-cloudinary.config({
-  cloud_name,
-  api_key,
-  api_secret
-})
+// Cloudinary API uses env variable CLOUDINARY_URL for connection string
 
 /**
  * Returns a promise that resolves data like this if successful:

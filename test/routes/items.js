@@ -4,7 +4,7 @@ const Models = require('../models')
 const formidable = require('formidable')
 const CloudinaryService = require('../cloudinary')
 const slack = require('../slack')
-const domain = require('../../config').domain
+const util = require('./util')
 
 async function fetchItem (id) {
   return Models.Item.where({ id }).fetch({
@@ -101,12 +101,12 @@ router.post('/items', async (req, res) => {
     await slack.postNewItem(
       req.user.attributes.name,
       name,
-      `${domain}/items/${item.id}`,
+      `${util.getAbsBaseUrl(req)}/items/${item.id}`,
       description
     )
     if (associatedUser) {
       await slack.postDM(
-        `${associatedUser.attributes.name} listed <${domain}/items/${item.id}|${item.attributes.name}> for you!`,
+        `${associatedUser.attributes.name} listed <${util.getAbsBaseUrl(req)}/items/${item.id}|${item.attributes.name}> for you!`,
         req.user,
         associatedUser
       )
@@ -285,7 +285,7 @@ router.post('/items/:id/transfer', async (req, res) => {
     const newHolder = await Models.User.where({ id: item.attributes.holder_id }).fetch()
     const owner = await Models.User.where({ id: item.attributes.owner_id }).fetch()
     await slack.postDM(
-      `${req.user.attributes.name} transfered <${domain}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
+      `${req.user.attributes.name} transfered <${util.getAbsBaseUrl(req)}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
       newHolder,
       previousHolder
     )
@@ -293,7 +293,7 @@ router.post('/items/:id/transfer', async (req, res) => {
     // Someone besides the owner transfer it to another person
     if (previousHolder.attributes.id !== owner.attributes.id && newHolder.attributes.id !== owner.attributes.id ) {
       await slack.postDM(
-        `${previousHolder.user.attributes.name} transfered <${domain}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
+        `${previousHolder.user.attributes.name} transfered <${util.getAbsBaseUrl(req)}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
         previousHolder,
         owner
       )

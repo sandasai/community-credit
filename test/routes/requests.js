@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Models = require('../models')
 const slack = require('../slack')
-const config = require('../../config')
+const util = require('./util')
 
 router.get('/requests', async (req, res) => {
   const { page } = req.query
@@ -41,7 +41,7 @@ router.post('/requests', async (req, res) => {
       }
     ]
   })
-  await slack.postRequest(req.user.attributes.name, item, `${config.domain}/requests/${request.attributes.id}`)
+  await slack.postRequest(req.user.attributes.name, item, `${util.getAbsBaseUrl(req)}/requests/${request.attributes.id}`)
   return res.status(201).json(request.serialize())
 })
 

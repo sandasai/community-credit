@@ -5,3 +5,6 @@
 
 # text editor stuff
 /.vscode
+
+# build files from vue
+/dist

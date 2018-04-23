@@ -1,8 +1,7 @@
 const axios = require('axios')
-const config = require('../config')
 
-const requestsWebhookUrl = config.slack.webhooks['requests']
-const newitemsWebhookUrl = config.slack.webhooks['new-items']
+const requestsWebhookUrl = process.env.SLACK_WEBHOOKS_REQUESTS_URL
+const newitemsWebhookUrl = process.env.SLACK_WEBHOOKS_NEWITEMS_URL
 
 
 /**

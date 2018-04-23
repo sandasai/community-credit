@@ -1,21 +1,9 @@
 let configdb;
-
-if (process.env.NODE_ENV === 'production') {
-  configdb = require('../config.json').db.production
-} else {
-  configdb = require('../config.json').db.development
-}
-
-const { host, user, password, database, port } = configdb
+let connection = process.env.DATABASE_URL
 
 const knex = require('knex')({
   client: 'pg',
-  connection: {
-    host,
-    user,
-    password,
-    database
-  },
+  connection,
   pool: { min: 0, max: 7 }
 })
 

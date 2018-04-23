@@ -1,6 +1,5 @@
 const axios = require('axios')
 const qs = require('querystring')
-const config = require('../../config')
 const express = require('express')
 const jwt = require('jsonwebtoken')
 const router = express.Router()
@@ -12,8 +11,8 @@ router.post('/auth/signin', async (req, res, next) => {
   if (method === 'slack') {
     // exchange with access token
     let params = qs.stringify({
-      client_id: config.slack.client_id,
-      client_secret: config.slack.client_secret,
+      client_id: process.env.SLACK_CLIENT_ID,
+      client_secret: process.env.SLACK_CLIENT_SECRET,
       code,
     })
     let response
@@ -69,7 +68,7 @@ router.post('/auth/signin', async (req, res, next) => {
       auth_method: 'slack',
       slack_user_id: user.id,
       slack_team_id: team.id,
-    }, config.jwt.secret)
+    }, process.env.JWT_SECRET)
     return res.status(200).json({
       token,
       id: userId
@@ -84,7 +83,7 @@ const checkLoggedIn = [
   async (req, res, next) => {
     const { token } = req
     try {
-      const { auth_method, slack_user_id, slack_team_id } = await jwt.verify(token, config.jwt.secret)
+      const { auth_method, slack_user_id, slack_team_id } = await jwt.verify(token, process.env.JWT_SECRET)
       req.user = await Models.User.where({ auth_method, slack_user_id, slack_team_id }).fetch()
       // If the user no longer has access token, then they are logged out and need to sign back in
       if (!req.user.attributes.slack_access_token || req.user.attributes.slack_access_token.length <= 0) {
