@@ -1,5 +1,4 @@
 const cloudinary = require('cloudinary')
-const configParams = require('../config').cloudinary
 
 // Cloudinary API uses env variable CLOUDINARY_URL for connection string
 
