@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "NODE_ENV=developement nodemon server.js",
     "test": "mocha --timeout 50000 --exit",
-    "test:uploads": "TEST_UPLOADS=true mocha --timeout 50000 --exit"
+    "test:uploads": "TEST_UPLOADS=true mocha --timeout 50000 --exit",
+    "heroku-postbuild": "node setup.js"
   },
   "author": "",
   "license": "ISC",

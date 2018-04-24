@@ -1,5 +1,4 @@
 import store from './store'
-import qs from 'query-string'
 const communitycreditToken = 'communitycreditToken'
 const communitycreditUserId = 'communitycreditUserId'
 const communitycreditUserName = 'communitycreditUserName'
@@ -89,18 +88,6 @@ export function logout () {
   store.commit('setId', null)
   localStorage.removeItem(communitycreditToken)
   localStorage.removeItem(communitycreditUserId)
-}
-
-/**
- * Returns the slack Uri for connecting
- */
-export function slackConnect () {
-  const str = `https://slack.com/oauth/authorize?${qs.stringify({
-    client_id: '274761581570.274905401125',
-    scope: 'channels:write,groups:write,chat:write:bot,im:write,im:read',
-    redirect_uri: 'http://127.0.0.1:8080/#/'
-  })}`
-  return str
 }
 
 /**

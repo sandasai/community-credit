@@ -11,7 +11,7 @@
             <div class="columns">
               <div class="column">
                 <div class="field">
-                  <a class="button is-fullwidth" :href="slackUri">Continue with Slack</a>
+                  <a class="button is-fullwidth" :href="uri">Continue with Slack</a>
                 </div>
                 <div class="field">
                   <a class="button is-fullwidth">Or create a new account</a>
@@ -43,19 +43,14 @@
 </template>
 
 <script>
-const slackClientId = process.env.SLACK_CLIENT_ID
-
 export default {
   name: 'home-page',
   data: function () {
     return {
       email: '',
       password: '',
-      slackUri: `http://slack.com/oauth/authorize?client_id=${slackClientId}&scope=identity.basic`
+      uri: `http://slack.com/oauth/authorize?client_id=${process.env.SLACK_CLIENT_ID}&scope=identity.basic`
     }
-  },
-  mounted: function () {
-    console.log('Process env: ', process.env)
   }
 }
 </script>

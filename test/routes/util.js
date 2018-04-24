@@ -3,7 +3,7 @@
  * @param {Object} req Express request object
  */
 function getAbsBaseUrl(req) {
-  return req.protocol + '://' + req.get('host')
+  return req.protocol + '://' + req.get('host') + '/'
 }
 
 module.exports = {
