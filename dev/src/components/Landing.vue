@@ -26,13 +26,21 @@
 </template>
 
 <script>
+import qs from 'querystring'
+
 export default {
   name: 'home-page',
   data: function () {
+    const params = qs.stringify({
+      'client_id': process.env.SLACK_CLIENT_ID,
+      'scope': 'identity.basic',
+      'redirect_uri': process.env.BASE_URL
+    })
+    console.log(params)
     return {
       email: '',
       password: '',
-      uri: `http://slack.com/oauth/authorize?client_id=${process.env.SLACK_CLIENT_ID}&scope=identity.basic`
+      uri: `http://slack.com/oauth/authorize?${params}`
     }
   }
 }

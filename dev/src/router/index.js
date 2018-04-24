@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Activity from '@/components/Activity/Activity'
 import Requests from '@/components/Requests'
 import RequestPage from '@/components/Requests/RequestPage'
-import store from '../services/store'
 import Items from '@/components/Items/Items'
 import ItemPage from '@/components/Items'
 import Profile from '@/components/Profile'
@@ -37,8 +36,7 @@ const router = new Router({
         const response = await fetch(`/auth/signin`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${store.state.token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({ code, method: 'slack' })
         })

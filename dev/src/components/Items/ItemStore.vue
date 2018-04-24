@@ -95,7 +95,7 @@ export default {
     return {
       search: '',
       selectedItem: null,
-      filter: 'All',
+      filter: 'Available',
       sortBy: 'Recently Available',
       items: [],
       itemPage: 1,
