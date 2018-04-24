@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Activity from '@/components/Activity/Activity'
-import Login from '@/components/Login'
-import SignUpPage from '@/components/SignUpPage'
 import Requests from '@/components/Requests'
 import RequestPage from '@/components/Requests/RequestPage'
 import store from '../services/store'
@@ -52,16 +50,6 @@ const router = new Router({
         }
         return next()
       }
-    },
-    {
-      path: '/login',
-      name: 'Login',
-      component: Login
-    },
-    {
-      path: '/signup',
-      name: 'SignUpPage',
-      component: SignUpPage
     },
     {
       path: '/requests',

@@ -11,27 +11,10 @@
             <div class="columns">
               <div class="column">
                 <div class="field">
-                  <a class="button is-fullwidth" :href="uri">Continue with Slack</a>
-                </div>
-                <div class="field">
-                  <a class="button is-fullwidth">Or create a new account</a>
-                </div>
-              </div>
-              <div class="column">
-                <div class="field">
-                  <label>Email</label>
-                  <p class="control">
-                    <input class="input" type="email" placeholder="Email" v-model="email">
-                  </p>
-                </div>
-                <div class="field">
-                  <label>Password</label>
-                  <p class="control">
-                    <input class="input" type="password" placeholder="Password" v-model="password">
-                  </p>
-                </div>
-                <div class="field">
-                  <a class="button is-success">Login</a>
+                  <a class="button is-fullwidth" :href="uri">
+                    <img src="@/assets/Slack_Mark_Web.png" style="width: 40px; height: 40px;"/>
+                    <strong>Continue with Slack</strong>
+                  </a>
                 </div>
               </div>
             </div>
