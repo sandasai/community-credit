@@ -11,7 +11,7 @@
         </div>
         <div class="field">
           <div class="control">
-            <b-checkbox v-model="enable">
+            <b-checkbox v-model="slackDmPermission">
               Receive and send notifications from other community members through Slack
             </b-checkbox>
           </div>
@@ -24,15 +24,36 @@
 </template>
 
 <script>
-const slackClientId = process.env.SLACK_CLIENT_ID
-const slackScopes = process.env.SLACK_SCOPES
+import axios from 'axios'
+import qs from 'querystring'
 
 export default {
   name: 'profile',
   data: function () {
+    const params = qs.stringify({
+      'client_id': process.env.SLACK_CLIENT_ID,
+      'scope': process.env.SLACK_SCOPES,
+      'redirect_uri': process.env.BASE_URL
+    })
     return {
-      enable: false,
-      slackUri: `https://slack.com/oauth/authorize?scope=${slackScopes}&client_id=${slackClientId}`
+      slackUri: `https://slack.com/oauth/authorize?${params}`,
+      slackScopes: {},
+      slackDmPermission: false
+    }
+  },
+  mounted: async function () {
+    try {
+      const response = await axios.get('/api/profile', {
+        headers: {
+          'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
+        }
+      })
+      response.data.slack_scopes.split(',').forEach((scope) => {
+        this.slackScopes[scope] = true
+      })
+      this.slackDmPermission = this.slackScopes['chat:write:bot']
+    } catch (err) {
+      console.log(err)
     }
   }
 }

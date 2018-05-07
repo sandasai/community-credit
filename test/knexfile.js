@@ -1,57 +1,17 @@
 // Update with your config settings.
-configdb = require('../config').db
+const path = require('path')
+require('dotenv').config({
+  path: path.resolve(__dirname, '../.env')
+})
 
 module.exports = {
-
-  development: {
-    client: 'postgresql',
-    connection: {
-      host: configdb.development.host,
-      database: configdb.development.database,
-      user: configdb.development.user,
-      password: configdb.development.password
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: 'knex_migrations'
-    }
+  client: 'postgresql',
+  connection: process.env.DATABASE_URL,
+  pool: {
+    min: 2,
+    max: 10
   },
-
-  test: {
-    client: 'postgresql',
-    connection: {
-      host: configdb.test.host,
-      database: configdb.test.database,
-      user: configdb.test.user,
-      password: configdb.test.password
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: 'knex_migrations'
-    }
-  },
-
-  production: {
-    client: 'postgresql',
-    connection: {
-      host: configdb.production.host,
-      database: configdb.production.database,
-      user: configdb.production.user,
-      password: configdb.production.password
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      tableName: 'knex_migrations'
-    }
+  migrations: {
+    tableName: 'knex_migrations'
   }
-
 }

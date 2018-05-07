@@ -7,6 +7,8 @@ const Models = require('../models')
 const bearerToken = require('express-bearer-token')
 
 router.post('/auth/signin', async (req, res, next) => {
+  let scopes
+
   const { code, method } = req.body
   if (method === 'slack') {
     // exchange with access token
@@ -25,11 +27,13 @@ router.post('/auth/signin', async (req, res, next) => {
       if (!response.data.ok) {
         throw new Error(`Slack error: ${response.data.error}`)
       }
+      scopes = response.data.scope
     } catch (err) {
       console.log(err)
       return res.status(400).json(err)
     }
     const { access_token, scope } = response.data
+
     // get identity of user
     params = qs.stringify({
       token: access_token
@@ -42,6 +46,7 @@ router.post('/auth/signin', async (req, res, next) => {
       if (!response.data.ok) {
         throw new Error(`Slack error: ${response.data.error}`)
       }
+      console.log(scopes, response.data)
     } catch (err) {
       console.log(err)
       return res.status(400).json(err)
@@ -55,13 +60,17 @@ router.post('/auth/signin', async (req, res, next) => {
         name: user.name,
         slack_user_id: user.id,
         slack_team_id: team.id,
-        slack_access_token: access_token
+        slack_access_token: access_token,
+        slack_scopes: scopes
       })
       await newUser.save()
       userId = newUser.attributes.id
     } else {
       // update access token
-      existingUser.save({ 'slack_access_token': access_token }, { patch: true })
+      existingUser.save({
+        'slack_access_token': access_token,
+        'slack_scopes': scopes
+       }, { patch: true })
       userId = existingUser.attributes.id
     }
     // create a jwt with slack user_id, slack team_id

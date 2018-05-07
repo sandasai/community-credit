@@ -36,7 +36,6 @@ export default {
       'scope': 'identity.basic',
       'redirect_uri': process.env.BASE_URL
     })
-    console.log(params)
     return {
       email: '',
       password: '',

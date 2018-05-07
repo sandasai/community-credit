@@ -9,4 +9,13 @@ router.get('/users', async (req, res) => {
   return res.status(200).json(users.serialize())
 })
 
+router.get('/profile', async (req, res) => {
+  const { id, name, slack_scopes } = req.user.attributes
+  return res.status(200).json({
+    id,
+    name,
+    slack_scopes
+  })
+})
+
 module.exports = router
