@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Activity from '@/components/Activity/Activity'
 import Requests from '@/components/Requests'
 import RequestPage from '@/components/Requests/RequestPage'
 import Items from '@/components/Items/Items'
@@ -24,7 +23,7 @@ const router = new Router({
         functional: true,
         render: function (createElement) {
           const token = window.localStorage.getItem(communityCreditToken)
-          return token ? createElement(Activity) : createElement(Landing)
+          return token ? createElement(Items) : createElement(Landing)
         }
       }),
       beforeEnter: async (to, from, next) => {
@@ -45,6 +44,10 @@ const router = new Router({
           const payload = await response.json()
           window.localStorage.setItem(communityCreditToken, payload.token)
           window.localStorage.setItem(communityCreditId, payload.id)
+        } else if (response.status === 401) {
+          // User could have old tokens
+          window.localStorage.removeItem(communityCreditToken)
+          window.localStorage.removeItem(communityCreditId)
         }
         return next()
       }
@@ -94,7 +97,7 @@ router.beforeEach((to, from, next) => {
     // if not, redirect to login page.
     if (!window.localStorage.getItem(communityCreditToken)) {
       next({
-        path: '/login',
+        path: '/',
         query: { redirect: to.fullPath }
       })
     } else {

@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    <nav class="navbar is-transparent" role="navigation" aria-label="main navigation">
-
+    <nav v-if="isAuthorized" class="navbar is-transparent" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <router-link class="navbar-item" to="/">
           <img src="https://imageog.flaticon.com/icons/png/512/32/32719.png?size=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF" alt="Community Credit">
@@ -24,7 +23,6 @@
       >
         <div class="navbar-end">
           <template v-if="isAuthorized">
-            <router-link @click.native="menuIsActive = false" class="navbar-item" to="/">Activity</router-link>
             <router-link @click.native="menuIsActive = false" class="navbar-item" to="/items">Items</router-link>
             <router-link @click.native="menuIsActive = false" class="navbar-item" to="/requests">Requests</router-link>
             <div class="navbar-item has-dropdown is-hoverable">
@@ -51,10 +49,6 @@
           </template>
         </div>
       </div>
-
-      <!-- for mobile
-
-      -->
     </nav>
 
     <!-- Display the main content -->
