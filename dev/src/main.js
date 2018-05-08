@@ -17,7 +17,8 @@ Vue.config.productionTip = false
 var communityCredit = {
   data: function () {
     return {
-      myId: Number(window.localStorage.getItem('community-credit-id'))
+      myId: Number(window.localStorage.getItem('community-credit-id')),
+      myName: window.localStorage.getItem('community-credit-name')
     }
   }
 }

@@ -256,6 +256,9 @@ router.delete('/items/:id/requests', async (req, res) => {
 
 router.post('/items/:id/transfer', async (req, res) => {
   const { user_id, message } = req.body
+  if (!user_id) {
+    return res.status(400).json({ message: 'Please specify a user'})
+  }
   const user = await Models.User.where({ id: user_id }).fetch();  // User who will recieve item
   if (!user) {
     return res.status(400).json({ message: 'No user exists' })

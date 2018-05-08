@@ -52,7 +52,7 @@ router.post('/auth/signin', async (req, res, next) => {
       return res.status(400).json(err)
     }
     const { user, team } = response.data
-    let userId;
+    let userId, userName;
     const existingUser = await Models.User.where({ 'slack_user_id': user.id, 'slack_team_id': team.id }).fetch()
     if (!existingUser) {
       const newUser = new Models.User({
@@ -65,6 +65,7 @@ router.post('/auth/signin', async (req, res, next) => {
       })
       await newUser.save()
       userId = newUser.attributes.id
+      userName = newUser.attributes.name
     } else {
       // update access token
       existingUser.save({
@@ -72,6 +73,7 @@ router.post('/auth/signin', async (req, res, next) => {
         'slack_scopes': scopes
        }, { patch: true })
       userId = existingUser.attributes.id
+      userName = existingUser.attributes.name
     }
     // create a jwt with slack user_id, slack team_id
     const token = jwt.sign({
@@ -81,7 +83,8 @@ router.post('/auth/signin', async (req, res, next) => {
     }, process.env.JWT_SECRET)
     return res.status(200).json({
       token,
-      id: userId
+      id: userId,
+      name: userName
     })
   }
 })

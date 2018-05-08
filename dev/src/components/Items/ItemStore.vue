@@ -166,7 +166,7 @@ export default {
       this.items = []
       this.itemPage = 1
       if (this.search.length === 0) {
-        return
+        this.search = undefined
       }
       this.getItems(this.search)
     },

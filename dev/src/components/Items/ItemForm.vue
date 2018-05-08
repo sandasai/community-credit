@@ -73,24 +73,28 @@ import FileUpload from '@/components/common/FileUpload'
 import SearchAutocomplete from '@/components/common/SearchAutocomplete'
 import axios from 'axios'
 
+function initialData () {
+  return {
+    item: '',
+    description: '',
+    files: [],
+    userOption: 'Anyone',
+    user: null,
+    users: [],
+    name: '',
+    placeOnStore: true,
+    request: null,
+    itemFieldTouched: false
+  }
+}
+
 export default {
   name: 'item-form',
   components: {
     FileUpload, SearchAutocomplete
   },
   data: function () {
-    return {
-      item: '',
-      description: '',
-      files: [],
-      userOption: 'Anyone',
-      user: null,
-      users: [],
-      name: '',
-      placeOnStore: true,
-      request: null,
-      itemFieldTouched: false
-    }
+    return initialData()
   },
   computed: {
     displayUser: function () {
@@ -176,7 +180,6 @@ export default {
               'Authorization': `Bearer ${window.localStorage.getItem('community-credit-token')}`
             }
           })
-          console.log('image upload: ', response.data)
         }
       } catch (err) {
         this.$toast.open({
@@ -184,7 +187,8 @@ export default {
           type: 'is-danger'
         })
       }
-
+      Object.assign(this.$data, initialData())
+      await this.getUsers()
       this.$toast.open({
         message: 'Item listed!',
         type: 'is-success'

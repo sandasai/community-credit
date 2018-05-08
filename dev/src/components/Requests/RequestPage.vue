@@ -37,7 +37,6 @@
         </template>
         <template v-else>
           <a href="#" class="card-footer-item" @click.prevent="handleFulfull">Fulfill</a>
-          <a href="#" class="card-footer-item">Talk</a>
         </template>
       </footer>
     </div>

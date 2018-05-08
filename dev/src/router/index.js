@@ -12,6 +12,7 @@ Vue.use(Router)
 
 const communityCreditId = 'community-credit-id'
 const communityCreditToken = 'community-credit-token'
+const communityCreditName = 'community-credit-name'
 
 const router = new Router({
   routes: [
@@ -44,10 +45,13 @@ const router = new Router({
           const payload = await response.json()
           window.localStorage.setItem(communityCreditToken, payload.token)
           window.localStorage.setItem(communityCreditId, payload.id)
+          console.log(payload.name)
+          window.localStorage.setItem(communityCreditName, payload.name)
         } else if (response.status === 401) {
           // User could have old tokens
           window.localStorage.removeItem(communityCreditToken)
           window.localStorage.removeItem(communityCreditId)
+          window.localStorage.setItem(communityCreditName)
         }
         return next()
       }
