@@ -41,7 +41,11 @@ router.post('/requests', async (req, res) => {
       }
     ]
   })
-  await slack.postRequest(req.user.attributes.name, item, `${util.getAbsBaseUrl(req)}/requests/${request.attributes.id}`)
+  try {
+    await slack.postRequest(req.user, item, `${util.getAbsBaseUrl(req)}/requests/${request.attributes.id}`)
+  } catch (err) {
+    console.log(err)
+  }
   return res.status(201).json(request.serialize())
 })
 

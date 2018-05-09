@@ -30,15 +30,25 @@ import qs from 'querystring'
 export default {
   name: 'profile',
   data: function () {
-    const params = qs.stringify({
-      'client_id': process.env.SLACK_CLIENT_ID,
-      'scope': process.env.SLACK_SCOPES,
-      'redirect_uri': process.env.BASE_URL
-    })
     return {
-      slackUri: `https://slack.com/oauth/authorize?${params}`,
       slackScopes: {},
       slackDmPermission: false
+    }
+  },
+  computed: {
+    slackUri: function () {
+      let scopes = []
+      if (this.slackDmPermission) {
+        scopes.push('im:write', 'chat:write:bot')
+      }
+      let params = qs.stringify({
+       // 'client_id': process.env.SLACK_CLIENT_ID,
+        'redirect_uri': process.env.BASE_URL
+      })
+      if (scopes.length !== 0) {
+        params = params + '&' + qs.stringify({ 'scope': scopes.join(',') })
+      }
+      return `https://slack.com/oauth/authorize?${params}`
     }
   },
   mounted: async function () {

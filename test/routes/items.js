@@ -5,6 +5,7 @@ const formidable = require('formidable')
 const CloudinaryService = require('../cloudinary')
 const slack = require('../slack')
 const util = require('./util')
+const moment = require('moment')
 
 async function fetchItem (id) {
   return Models.Item.where({ id }).fetch({
@@ -99,18 +100,13 @@ router.post('/items', async (req, res) => {
 
   if (process.env.NODE_ENV !== 'test') {
     await slack.postNewItem(
-      req.user.attributes.name,
+      req.user,
       name,
       `${util.getAbsBaseUrl(req)}/items/${item.id}`,
-      description
+      description,
+      undefined,
+      associatedUser
     )
-    if (associatedUser) {
-      await slack.postDM(
-        `${associatedUser.attributes.name} listed <${util.getAbsBaseUrl(req)}/items/${item.id}|${item.attributes.name}> for you!`,
-        req.user,
-        associatedUser
-      )
-    }
   }
 
   return res.status(201).json(item.serialize())
@@ -241,6 +237,15 @@ router.post('/items/:id/requests', async (req, res) => {
   })
   await itemRequest.save()
   item = await fetchItem(item.id)
+
+  // post to slack
+  const owner = await Models.User.where({ id: item.attributes.owner_id }).fetch()
+  try {
+    await slack.postItemRequest(owner, user, item.attributes.name, `${util.getAbsBaseUrl(req)}items/${item.id}`)
+  } catch (err) {
+    console.log(err)
+    return res.status(400).json()
+  }
   return res.status(201).json(await item.serializeFull(user.attributes.id))
 })
 
@@ -255,7 +260,7 @@ router.delete('/items/:id/requests', async (req, res) => {
 })
 
 router.post('/items/:id/transfer', async (req, res) => {
-  const { user_id, message } = req.body
+  const { user_id, message, date } = req.body
   if (!user_id) {
     return res.status(400).json({ message: 'Please specify a user'})
   }
@@ -287,20 +292,14 @@ router.post('/items/:id/transfer', async (req, res) => {
   if (process.env.NODE_ENV !== 'test') {
     const newHolder = await Models.User.where({ id: item.attributes.holder_id }).fetch()
     const owner = await Models.User.where({ id: item.attributes.owner_id }).fetch()
-    await slack.postDM(
-      `${req.user.attributes.name} transfered <${util.getAbsBaseUrl(req)}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
+    await slack.postItemActivity(
+      owner,
+      previousHolder,
       newHolder,
-      previousHolder
+      item.attributes.name,
+      `${util.getAbsBaseUrl(req)}items/${item.id}`,
+      moment(date).format('MMMM Do YYYY, h:mm:ss a')
     )
-
-    // Someone besides the owner transfer it to another person
-    if (previousHolder.attributes.id !== owner.attributes.id && newHolder.attributes.id !== owner.attributes.id ) {
-      await slack.postDM(
-        `${previousHolder.user.attributes.name} transfered <${util.getAbsBaseUrl(req)}/items/${item.id}|${item.attributes.name}> to ${newHolder.attributes.name}`,
-        previousHolder,
-        owner
-      )
-    }
   }
 
   return res.status(200).json({})

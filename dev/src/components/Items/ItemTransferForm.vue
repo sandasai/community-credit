@@ -68,6 +68,9 @@ export default {
     },
     holding: function () {
       return this.holder === this.myId
+    },
+    datetime: function () {
+      return new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(), this.time.getHours(), this.time.getMinutes())
     }
   },
   data: function () {
@@ -107,7 +110,8 @@ export default {
           },
           data: {
             user_id: this.user,
-            message: this.comments
+            message: this.comments,
+            date: this.datetime
           }
         })
         this.$toast.open({
