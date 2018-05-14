@@ -42,7 +42,7 @@ router.post('/requests', async (req, res) => {
     ]
   })
   try {
-    await slack.postRequest(req.user, item, `${util.getAbsBaseUrl(req)}/requests/${request.attributes.id}`)
+    await slack.postRequest(req.user, item, `${util.getAbsBaseUrl(req)}#/requests/${request.attributes.id}`)
   } catch (err) {
     console.log(err)
   }

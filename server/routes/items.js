@@ -102,7 +102,7 @@ router.post('/items', async (req, res) => {
     await slack.postNewItem(
       req.user,
       name,
-      `${util.getAbsBaseUrl(req)}/items/${item.id}`,
+      `${util.getAbsBaseUrl(req)}#/items/${item.id}`,
       description,
       undefined,
       associatedUser
@@ -241,7 +241,7 @@ router.post('/items/:id/requests', async (req, res) => {
   // post to slack
   const owner = await Models.User.where({ id: item.attributes.owner_id }).fetch()
   try {
-    await slack.postItemRequest(owner, user, item.attributes.name, `${util.getAbsBaseUrl(req)}items/${item.id}`)
+    await slack.postItemRequest(owner, user, item.attributes.name, `${util.getAbsBaseUrl(req)}#/items/${item.id}`)
   } catch (err) {
     console.log(err)
     return res.status(400).json()
